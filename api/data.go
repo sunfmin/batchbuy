@@ -8,12 +8,13 @@ type Product struct {
 }
 
 type User struct {
-	Name  string
-	Email string
+	Name       string
+	Email      string
+	AvatarLink string
 }
 
 type Order struct {
-	Date     string
-	Products []*Product
-	User     *User
+	Date    string
+	Product *Product
+	User    []*User
 }
