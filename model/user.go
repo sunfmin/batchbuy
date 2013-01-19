@@ -2,7 +2,7 @@ package model
 
 import (
 	"api"
-	"labix.org/v2/mgo/bson"
+	// "labix.org/v2/mgo/bson"
 )
 
 var userTN = "users"
