@@ -37,3 +37,8 @@ func (model Model) RemoveUser(email string) (err error) {
 	err = model.remove(userTN, "Email", email)
 	return
 }
+
+func getUser(email string) (user *api.User) {
+	db.C(userTN).Find(bson.M{"Email": email}).One(user)
+	return
+}

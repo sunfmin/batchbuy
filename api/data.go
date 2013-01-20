@@ -15,6 +15,7 @@ type User struct {
 
 type Order struct {
 	Date    string
-	Product *Product
-	User    []*User
+	Products []*Product
+	User *User
+	// User    []*User
 }
