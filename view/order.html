@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Low Tea @ The Plant</title>
+	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/app.css"/>
+</head>
+
+<body>
+    <div id="main-panel">
+		<ul class="nav nav-pills">
+ 			<li class="active"><a href="/order">Order</a></li>
+ 			<li><a href="/order_list">Order List</a></li>
+ 			<li><a href="/product">Product</a></li>
+ 			<li><a href="/profile">Profile</a></li>
+		</ul>
+
+		<form action="profile_submit" method="get" accept-charset="utf-8">
+			<label for="name">Email</label>
+			<input id="name" type="text" placeholder="What needs to be done?">
+			
+			<label for="produts">Product</label>
+			<!-- <input  type="text" placeholder="What needs to be done?"> -->
+			<select id="products">
+			  <option>product 1</option>
+			  <option>product 2</option>
+			  <option>product 3</option>
+			  <option>product 4</option>
+			  <option>product 5</option>
+			</select>
+			
+			<label for="count">Count</label>
+			<input id="count" type="number" placeholder="What needs to be done?">
+
+			<p><a class="btn btn-primary btn-small pull-right">Save</a></p>
+		</form>
+    </div>
+    
+    <div id="app-mark">
+		Low Tea @ The Plant.
+    </div>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+</body>
+</html>
