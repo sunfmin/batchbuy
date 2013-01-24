@@ -1,50 +1,115 @@
 package model
 
 import (
+	"time"
 	"api"
-	"strings"
 	"labix.org/v2/mgo/bson"
+	// "fmt"
 )
 
-// TN => table name
 var orderTN = "orders"
+var orderCol = db.C(orderTN)
 
-func (model Model) PutOrder(date string, email string, productIds []string) (order *api.Order, err error) {
-	// TODO => product.rb:14
-	newOrder := make(map[string]interface{})
-	orderId := genOrderId(date, email)
-	newOrder["Date"] = date
-	newOrder["Email"] = email
-	newOrder["Products"] = productIds
-	newOrder["Id"] = orderId
+type Order struct {
+	Id bson.ObjectId "_id"
+	Date      time.Time
+	ProductId string  // => Product.Id.Hex()
+	UserId    string  // => User.Email
+	Count     int
+}
+
+type OrderInput struct {
+	Date      time.Time
+	ProductId string  // => Product.Id.Hex()
+	UserId    string  // => User.Email
+	Count     int
+}
+
+func (order *Order) Put(date time.Time, email string, input OrderInput) (err error) {
+	// Can't use Upsert here.
+	conds := M{"userid": email, "date": getDayRangeCond(date)}
+	count, err := orderCol.Find(conds).Count()
 	
-	err = model.put(orderTN, newOrder, "Id", orderId)
-	if err != nil {
-		return
+	if count == 0 {
+		orderCol.Insert(input)
+	} else {
+		orderCol.Update(conds, &input)
 	}
 	
-	// TODO => product.rb:27
-	order = &api.Order{}
-	orderMap := map[string]interface{}{}
-	err = db.C(userTN).Find(bson.M{"Email": email}).One(orderMap)
-	if err != nil {
-		return
-	}
-	order.User = getUser(orderMap["Email"].(string))
-	order.Date = orderMap["Date"].(string)
-	order.Products, err = getProducts(orderMap["Products"].([]string))
-	if err != nil {
-		return
+	orderCol.Find(conds).One(order)
+	
+	return
+}
+
+func (order Order) Remove(date time.Time, email string) (err error) {
+	conds := M{"userid": email, "date": getDayRangeCond(date)}
+	err = orderCol.Remove(conds)
+	return
+}
+
+func (order Order) GetProduct() (product *Product) {
+	product = &Product{}
+	productCol.FindId(bson.ObjectIdHex(order.ProductId)).One(product)
+	
+	return
+}
+
+func (order Order) GetUser() (user *User) {
+	user = &User{}
+	userCol.Find(M{"email": order.UserId}).One(user)
+	
+	return
+}
+
+func (order Order) ToApi() (apiOrder *api.Order) {
+	apiOrder = &api.Order{}
+	apiOrder.Count = order.Count
+	apiOrder.Date = order.Date.String()
+	apiOrder.Users = append(apiOrder.Users, order.GetUser().ToApi())
+	apiOrder.Product = order.GetProduct().ToApi()
+	
+	return
+}
+
+func getDayRangeCond(date time.Time) M {
+	gteDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	lteDate := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 0, date.Location())
+
+	return M{"$gte": gteDate, "$lte": lteDate}
+}
+
+func OrderListOfDate(date time.Time) (orders []Order, err error) {
+	err = orderCol.Find(M{"date": getDayRangeCond(date)}).All(&orders)
+	return
+}
+
+// Generate api.Order data from model.Order data
+func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order) {
+	orders, _ := OrderListOfDate(date)
+	
+	// newApiOrder := api.Order{orderList}
+	var newOrderf bool
+	// apiOrders = make([]*api.Order, 1, 1)
+	for _, order := range orders {
+		newOrderf = true
+		for _, apiOrder := range apiOrders {
+			if apiOrder.Product.Id == order.ProductId {
+				apiOrder.Users = append(apiOrder.Users, order.GetUser().ToApi())
+				apiOrder.Count += order.Count
+
+				newOrderf = false
+				continue
+			}
+		}
+		if newOrderf {
+			apiOrders = append(apiOrders, order.ToApi())
+		}
 	}
 	
 	return
 }
 
-func (model Model) RemoveOrder(date string, email string) {
-	model.remove(orderTN, "Id", genOrderId(date, email))
-	return
-}
-
-func genOrderId(date string, email string) string {
-	return strings.Join([]string{date, email}, ":")	
-}
+// func getTime(dateStr string) (date time.Time) {
+// 	date, _ = time.Parse(time.RFC3339, dateStr)
+// 	return 
+// }

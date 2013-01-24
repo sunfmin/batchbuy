@@ -6,7 +6,7 @@ type Product struct {
 	PhotoLink string
 	Price     int64 // 分
 	ValidFrom string
-	ValidFrom string
+	ValidTo string
 }
 
 type User struct {
@@ -17,7 +17,7 @@ type User struct {
 
 type Order struct {
 	Date     string
-	Products *Product
-	User     []*User
+	Product *Product
+	Users     []*User
 	Count    int
 }

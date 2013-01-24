@@ -3,42 +3,45 @@ package model
 import (
 	"api"
 	"labix.org/v2/mgo/bson"
+	// "fmt"
 )
 
 var userTN = "users"
+var userCol = db.C(userTN)
 
-func (model Model) PutUser(email string, input api.UserInput) (user *api.User, err error) {
-	// TODO => product.rb:14
-	newUser := make(map[string]interface{})
-	newUser["Email"] = input.Email
-	newUser["Name"] = input.Name
-	// newUser["AvatarLink"] = input.AvatarLink
-	
-	err = model.put(userTN, newUser, "Email", email)
-	if err != nil {
-		return
+type User struct {
+	Id bson.ObjectId "_id"
+	Name       string
+	Email      string
+	AvatarLink string
+}
+
+type UserInput api.User
+
+func (user *User) Put(email string, input UserInput) (err error) {
+	count, err := userCol.Find(M{"email": email}).Count()
+	if count == 0 {
+		userCol.Insert(input)
+	} else {
+		userCol.Update(M{"email": input.Email}, &input)
 	}
 	
-	// TODO => product.rb:27
-	user = &api.User{}
-	userMap := map[string]interface{}{}
-	err = db.C(userTN).Find(bson.M{"Email": email}).One(userMap)
-	if err != nil {
-		return
-	}
-	user.Email = userMap["Email"].(string)
-	user.Name = userMap["Name"].(string)
-	// user.AvatarLink = userMap["AvatarLink"].(string)
+	userCol.Find(M{"email": input.Email}).One(user)
 	
 	return
 }
 
-func (model Model) RemoveUser(email string) (err error) {
-	err = model.remove(userTN, "Email", email)
+func (User) Remove(email string) (err error) {
+	err = userCol.Remove(M{"email": email})
+	
 	return
 }
 
-func getUser(email string) (user *api.User) {
-	db.C(userTN).Find(bson.M{"Email": email}).One(user)
+func (user User) ToApi() (apiUser *api.User) {
+	apiUser = &api.User{}
+	apiUser.Name = user.Name
+	apiUser.Email = user.Email
+	apiUser.AvatarLink = user.AvatarLink
+	
 	return
 }
