@@ -4,35 +4,47 @@
 <head>
 	<meta charset="utf-8">
 	<title>Low Tea @ The Plant</title>
-	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link href="/assets/bootstrap.css" rel="stylesheet">
 	<link rel="stylesheet" href="/assets/app.css"/>
 </head>
 
 <body>
     <div id="main-panel">
+		<div id="logo">
+			<!-- <img src="/assets/coffe_cup.png"></img> -->
+			Low Tea Moment
+		</div>
 		<ul class="nav nav-pills">
- 			<li><a href="/order">Order</a></li>
- 			<li><a href="/order_list">Order List</a></li>
- 			<li><a href="/product">Product</a></li>
- 			<li class="active"><a href="/profile">Profile</a></li>
+ 			<li><a href="/order.html">Order</a></li>
+ 			<li><a href="/order_list.html">Order List</a></li>
+ 			<li><a href="/product.html">Product</a></li>
+ 			<li class="active"><a href="/profile.html">Profile</a></li>
 		</ul>
 
-		<form action="profile_submit" method="get" accept-charset="utf-8">
-			<label for="name">Name</label>
-			<input id="name" type="text" placeholder="What needs to be done?">
+		<form action="/profile" method="POST" accept-charset="utf-8">
+			<label for="Name">Name</label>
+			<input name="name" type="text" placeholder="What needs to be done?">
 			
-			<label for="email">Email</label>
-			<input id="email" type="text" placeholder="What needs to be done?">
+			<label for="Email">Email</label>
+			<input name="email" type="text" placeholder="What needs to be done?">
 
-			<p><a class="btn btn-primary btn-small pull-right">Save</a></p>
+			<label for="avatarlink">Avatar Link</label>
+			<input name="avatarlink" type="text" placeholder="What needs to be done?">
+			
+			<!-- <p><a class="btn btn-primary btn-small pull-right">Save</a></p> -->
+			<p><input type="submit" value="Save" class="btn btn-primary btn-small"></p>
 		</form>
     </div>
     
-    <div id="app-mark">
+    <!-- <div id="app-mark">
 		Low Tea @ The Plant.
-    </div>
+    </div> -->
 
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+	<script src="/assets/jquery.js"></script>
+	<script src="/assets/jquery.cookie.js"></script>
+	<script src="/assets/bootstrap.js"></script>
+	<!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script> -->
+	<script src="/assets/profile.js"></script>
     </body>
 </html>

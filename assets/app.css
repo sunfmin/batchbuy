@@ -18,9 +18,10 @@ body {
 }
 
 #main-panel {
-	background: #fff;
+/*	width: 300px;
+*/	background: #fff;
 	padding: 20px;
-	margin-bottom: 40px;
+	margin-bottom: 0px;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px 0;
 	-moz-box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px 0;
 	-ms-box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px 0;
@@ -31,4 +32,39 @@ body {
 	-ms-border-radius: 0 0 5px 5px;
 	-o-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
+}
+
+#logo {
+	height: 50px;
+	margin: 0 -20px -20px -20px;
+	overflow: hidden;
+	display: block;
+	color: #555;
+	background: #F4FCE8;
+	border-top: 1px solid #EDEDED;
+	padding: 0 20px;
+	line-height: 37px;
+	margin-top: -20px;
+	border: solid 1px #DDDCDC;
+	border-width: 0 0 1px 0;
+	text-align: right;
+	font-size: 20px;
+	line-height: 52px;
+	color: #333;
+}
+
+.nav {
+	margin: 30px auto 15px;
+	width: 350px;
+}
+
+form {
+	width: 300px;
+	margin: 0 auto;
+	padding: 0 0 30px 0;
+}
+
+input[type=submit] {
+	display: block;
+	float: right;
 }
