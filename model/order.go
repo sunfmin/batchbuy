@@ -27,7 +27,7 @@ type OrderInput struct {
 
 func (order *Order) Put(date time.Time, email string, input OrderInput) (err error) {
 	// Can't use Upsert here.
-	conds := M{"userid": email, "date": getDayRangeCond(date)}
+	conds := M{"userid": email, "date": getDayRangeCond(date), "productid": input.ProductId}
 	count, err := orderCol.Find(conds).Count()
 	
 	if count == 0 {
@@ -87,9 +87,7 @@ func OrderListOfDate(date time.Time) (orders []Order, err error) {
 func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order) {
 	orders, _ := OrderListOfDate(date)
 	
-	// newApiOrder := api.Order{orderList}
 	var newOrderf bool
-	// apiOrders = make([]*api.Order, 1, 1)
 	for _, order := range orders {
 		newOrderf = true
 		for _, apiOrder := range apiOrders {

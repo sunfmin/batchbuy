@@ -16,7 +16,8 @@ type User struct {
 	AvatarLink string
 }
 
-type UserInput api.User
+// TODO this design seems unnecesary, and make it more troublesome to use User#Put
+type UserInput api.UserInput
 
 func (user *User) Put(email string, input UserInput) (err error) {
 	count, err := userCol.Find(M{"email": email}).Count()

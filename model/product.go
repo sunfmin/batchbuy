@@ -53,6 +53,34 @@ func ProductListOfDate(date time.Time) (product []Product, err error) {
 	return
 }
 
+// TODO test it
+func ProductListOfDateForApi(date time.Time) (products []*api.Product, err error) {
+	modelProducts, err := ProductListOfDate(date);
+	if err != nil {
+		return
+	}
+	
+	for _, modelProduct := range modelProducts {
+		products = append(products, modelProduct.ToApi())
+	}
+	
+	return
+}
+
+func AllProductsForApi() (products []*api.Product, err error) {
+	modelProducts := []*Product{}
+	err = productCol.Find(M{}).All(&modelProducts)
+	if err != nil {
+		return
+	}
+	
+	for _, modelProduct := range modelProducts {
+		products = append(products, modelProduct.ToApi())
+	}
+	
+	return
+}
+
 func (product Product) ToApi() (apiProduct *api.Product) {
 	apiProduct = &api.Product{}
 	apiProduct.Id = product.Id.Hex()

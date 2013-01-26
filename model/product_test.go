@@ -42,6 +42,20 @@ func TestUpdateProduct(t *testing.T) {
 }
 
 func TestProductListOfDate(t *testing.T) {
+	today := time.Now()
+	initDbForProductTests()
+	
+	productList, _ := ProductListOfDate(today)
+	
+	if len(productList) != 2 {
+		fmt.Printf("Product List: %s\n", productList)
+		t.Error("Can Get Product List Properly")
+	}
+	
+	productCol.RemoveAll(M{})
+}
+
+func initDbForProductTests() {
 	productCol.RemoveAll(M{})
 	today := time.Now()
 	productInput := ProductInput{"Product1", "Photo Link", 100, today.AddDate(0, 0, -10), today.AddDate(0, 0, 10)}
@@ -55,12 +69,16 @@ func TestProductListOfDate(t *testing.T) {
 	productInput.ValidFrom = today.AddDate(0, 1, 0)
 	productInput.ValidTo = today.AddDate(0, 1, 10)
 	product.Put("non-exited product", productInput)
+}
+
+func TestAllProdutsForApi(t *testing.T) {
+	initDbForProductTests()
 	
-	productList, _ := ProductListOfDate(today)
+	products, _ := AllProductsForApi()
 	
-	if len(productList) != 2 {
-		fmt.Printf("Product List: %s\n", productList)
-		t.Error("Can Get Product List Properly")
+	if len(products) != 3 {
+		fmt.Printf("Got: %s\n", products)
+		t.Error("Can't get all products properly")
 	}
 	
 	productCol.RemoveAll(M{})
