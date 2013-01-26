@@ -1,15 +1,15 @@
 package api
 
 type ProductInput struct {
-	Name      string
-	Price     int64
-	PhotoLink string
-	ValidFrom string
-	ValidTo   string
+	Name      string `schema:"name"`
+	Price     int64  `schema:"price"`
+	PhotoLink string `schema:"photolink"`
+	ValidFrom string `schema:"validfrom"`
+	ValidTo   string `schema:"validto"`
 }
 
 type UserInput struct {
-	Email      string
-	Name       string
-	AvatarLink string
+	Name       string `schema:"name"`
+	Email      string `schema:"email"`
+	AvatarLink string `schema:"avatarlink"`
 }
