@@ -1,7 +1,7 @@
 package main
 
 import (
-    "github.com/batchbuy/api"
+    "github.com/sunfmin/batchbuy/api"
     "fmt"
     "github.com/gorilla/schema"
     "html/template"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/batchbuy/model"
-	"github.com/batchbuy/api"
+	"github.com/sunfmin/batchbuy/model"
+	"github.com/sunfmin/batchbuy/api"
 	"time"
 	"fmt"
 )

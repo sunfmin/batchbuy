@@ -2,7 +2,7 @@ package model
 
 import (
 	"time"
-	"github.com/batchbuy/api"
+	"github.com/sunfmin/batchbuy/api"
 	"labix.org/v2/mgo/bson"
 	// "fmt"
 )
