@@ -40,7 +40,7 @@ func main() {
     log.Fatal(s.ListenAndServe())
 }
 
-const appRoot = "src"
+const appRoot = "/usr/local/go/src/pkg/github.com/sunfmin/batchbuy"
 
 func serverFile(w http.ResponseWriter, r *http.Request) {
     // todo find out whether there is a predefined variable like __FILE__ in ruby
@@ -53,7 +53,7 @@ func serverFile(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-// TODO refactor three pages handler below: use multiple template files
+// TODO: refactor three pages handler below: use multiple template files
 func productPage(w http.ResponseWriter, r *http.Request) {
     products, _ := controller.AllProducts()
     var templates = template.Must(template.ParseFiles(appRoot + "/view/product.html"))
