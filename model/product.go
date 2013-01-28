@@ -4,7 +4,7 @@ import (
 	// "strconv"
 	"time"
 	// "strings"
-	"api"
+	"github.com/batchbuy/api"
 	"labix.org/v2/mgo/bson"
 )
 

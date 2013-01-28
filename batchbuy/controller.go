@@ -1,7 +1,7 @@
 package main
 
 import (
-	"model"
+	"github.com/batchbuy/model"
 	"api"
 	"time"
 	"fmt"
