@@ -1,65 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<meta charset="utf-8">
-	<title>Low Tea @ The Plant</title>
-	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="/assets/app.css"/>
-</head>
-
-<body>
-    <div id="main-panel">
-		<div id="logo">
-			<!-- <img src="/assets/coffe_cup.png"></img> -->
-			Low Tea Moment
-		</div>
-		<ul class="nav nav-pills">
- 			<li><a href="/order.html">Order</a></li>
- 			<li><a href="/order_list.html">Order List</a></li>
- 			<li class="active"><a href="/product.html">Product</a></li>
- 			<li><a href="/profile.html">Profile</a></li>
-		</ul>
-
-		<form action="/product" method="POST" accept-charset="utf-8">
-			<label for="produts">History Product</label>
-			<!-- <input  type="text" placeholder="What needs to be done?"> -->
-			<select name="id">
-			  <option value=""></option>
-			  {{range .}}
-			  <option value="{{.Id}}">{{.Name}}</option>
-			  {{end}}
-			</select>
-			
-			<label for="name">Name</label>
-			<input name="name" type="text" placeholder="What needs to be done?">
-			
-			<label for="price">Price</label>
-			<input name="price" type="number" placeholder="What needs to be done?">
-			
-			<label for="photolink">PhotoLink</label>
-			<input name="photolink" type="text" placeholder="What needs to be done?">
-			
-			<label for="validfrom">From</label>
-			<input name="validfrom" type="date" placeholder="What needs to be done?">
-			
-			<label for="validto">To</label>
-			<input name="validto" type="date" placeholder="What needs to be done?">
-
-			<p><input type="submit" value="Save" class="btn btn-primary btn-small"  id="Save"></p>
-		</form>
-    </div>
-    
-    <!-- <div id="app-mark">
-		Low Tea @ The Plant.
-    </div> -->
-
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
-	<script src="/assets/moment.js"></script>
-	<script src="/assets/product.js"></script>
-	<script type="text/javascript" charset="utf-8">
-		var products = {{.}}
-	</script>
-</body>
-</html>
+{{template "appHeader"}}
+<div class="row-fluid"><ul class="thumbnails">
+{{range $index, $product := .}}
+{{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
+    <li class="span4"><form class="thumbnail">
+        <img src="{{.PhotoLink}}">
+        <div class="caption">
+            <input type="hidden" name="productid" value="{{.Id}}">
+            <div class="input-prepend">
+              <span class="add-on product-add-on">Name</span>
+              <input class="span2 product-input" type="text" name="name" value="{{.Name}}">
+            </div>
+            <div class="input-prepend">
+              <span class="add-on product-add-on">Price</span>
+              <input class="span2 product-input" type="number" name="price" value="{{.Price}}">
+            </div>
+            <div class="input-prepend">
+              <span class="add-on product-add-on">PhotoLink</span>
+              <input class="span2 product-input" type="text" name="photolink" value="{{.PhotoLink}}">
+            </div>
+            <div class="input-prepend">
+              <span class="add-on product-add-on">From</span>
+              <input class="span2 product-input" type="date" name="validfrom" value="{{formatTime .ValidFrom}}">
+            </div>
+            <div class="input-prepend">
+              <span class="add-on product-add-on">To</span>
+              <input class="span2 product-input" type="date" name="validto" value="{{formatTime .ValidTo}}">
+            </div>
+            <!-- <a class="btn btn-primary pull-right">Save</a>
+            <div style="clear:both;"></div> -->
+        </div>
+    </form></li>
+{{end}}
+</ul></div>
+<script src="/assets/product.js"></script>
+{{template "appFooter"}}

@@ -1,43 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<meta charset="utf-8">
-	<title>Low Tea @ The Plant</title>
-	<link href="/assets/bootstrap.css" rel="stylesheet">
-	<link rel="stylesheet" href="/assets/app.css"/>
-</head>
-
-<body>
-    <div id="main-panel">
-		<div id="logo">
-			<!-- <img src="/assets/coffe_cup.png"></img> -->
-			Low Tea Moment
-		</div>
-		<ul class="nav nav-pills">
- 			<li><a href="/order.html">Order</a></li>
- 			<li class="active"><a href="/order_list.html">Order List</a></li>
- 			<li><a href="/product.html">Product</a></li>
- 			<li><a href="/profile.html">Profile</a></li>
-		</ul>
-		
-		<table class="table table-striped">
-			<thead>
-				<tr><th>#</th><th>Who</th><th>What</th><th>Count</th></tr>
-			</thead>
-			<tbody>
-			{{range index .}}
-				<tr><th>{{.Index}}</th><th>{{.Users}}</th><th>{{.Product}}</th><th>{{.Count}}</th></tr>
-			{{end}}
-			</tbody>
-		</table>
-    </div>
-    
-    <!-- <div id="app-mark">
-		Low Tea @ The Plant.
-    </div> -->
-
-	<script src="/assets/jquery.js"></script>
-	<script src="/assets/bootstrap.js"></script>
-</body>
-</html>
+{{template "appHeader"}}
+<table class="table table-striped table-hover">
+	<thead>
+		<tr><th>#</th><th>What</th><th>Count</th><th>Who</th></tr>
+	</thead>
+	<tbody>
+	{{range index .}}
+		<tr><th>{{.Index}}</th><th>{{.Product}}</th><th>{{.Count}}</th><th>{{.Users}}</th></tr>
+	{{end}}
+	</tbody>
+</table>
+{{template "appFooter"}}

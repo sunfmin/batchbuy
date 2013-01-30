@@ -8,7 +8,8 @@ body {
 	line-height: 1.4em;
 	background: #eeeeee;
 	color: #333333;
-	width: 520px;
+/*    width: 520px;*/
+    width: 780px;
 	margin: 0 auto;
 	-webkit-font-smoothing: antialiased;
 }
@@ -58,13 +59,63 @@ body {
 	width: 350px;
 }
 
-form {
-	width: 300px;
-	margin: 0 auto;
-	padding: 0 0 30px 0;
+.caption-input {
+    width: 190px;
 }
 
-input[type=submit] {
-	display: block;
-	float: right;
+#identity-panel {
+    border-top: 1px solid #DDD;
+    padding-top: 5px;
+    margin-bottom: 10px;
+    height: 40px;
+}
+
+#identity-panel span {
+    font-family: inherit;
+    line-height: 20px;
+    color: inherit;
+    font-size: 20px;
+    text-rendering: optimizelegibility;
+}
+
+#myModal form {
+    width: 250px;
+    margin: 0 auto;
+}
+
+.input-prepend .span2 {
+    width: 146px;
+}
+
+.input-prepend .order-add-on {
+    width: 50px;
+}
+
+#email {
+    width: 200px;
+}
+
+#profile-panel {
+    width: 300px;
+    margin: 0 auto;
+}
+
+#profile-panel input {
+    width: 200px;
+}
+
+#profile-panel input[type="submit"] {
+    width: 60px;
+}
+
+#profile-panel .add-on {
+    width: 70px;
+}
+
+.input-prepend .product-add-on {
+    width: 75px;
+}
+
+.input-prepend .product-input {
+    width: 123px;
 }
