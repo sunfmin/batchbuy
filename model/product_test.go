@@ -7,6 +7,8 @@ import (
 	// "labix.org/v2/mgo/bson"
 )
 
+// var db = session.DB("low_tea_at_the_plant_test")
+
 func TestCreateProduct(t *testing.T) {
 	productInput := ProductInput{"Name", "Photo Link", 100, time.Now().AddDate(0, 0, -10), time.Now().AddDate(0, 0, 10)}
 	product := Product{}

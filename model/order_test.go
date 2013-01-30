@@ -7,6 +7,8 @@ import (
 	// "labix.org/v2/mgo/bson"
 )
 
+// var db = session.DB("low_tea_at_the_plant_test")
+
 func TestCreateOrder(t *testing.T) {
 	emptyDb()
 	product := Product{}

@@ -20,11 +20,29 @@ func Init() *mgo.Session {
 	return session
 }
 
-// func End() {
-// 	session.Close()
+func End() {
+    session.Close()
+}
+
+var session = Init()
+var db = session.DB("low_tea_at_the_plant")
+
+// func StopConnectDb() {
+//     session.Close()
+// }
+// 
+// var session = Init()
+// var db *mgo.Database
+// 
+// func StartConnectDb(mode string) {
+//     switch mode {
+//     case "production":
+//         db = session.DB("low_tea_at_the_plant")
+//     case "test":
+//         db = session.DB("low_tea_at_the_plant_test")
+//     }
 // }
 
-var db = Init().DB("low_tea_at_the_plant")
 
 // Ported from mgo/bson for the sake of not knowing how to update mgo
 // TODO: figure out how to update go remote package and remove this function

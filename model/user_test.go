@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// StartConnectDb("test")
+
 func TestCreateUser(t *testing.T) {
 	userCol.RemoveAll(M{})
 	
