@@ -1,0 +1,1 @@
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "low_tea_at_the_plant.user", "name" : "_id_" } ] }
