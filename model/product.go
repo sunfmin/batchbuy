@@ -49,7 +49,11 @@ func (Product) Remove(id string) (err error) {
 
 func ProductListOfDate(date time.Time) (product []Product, err error) {
 	err = productCol.Find(M{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}}).All(&product)
-	
+    emptyDate, _ := time.Parse("2006-01-02", "")
+    var unrestraninedProducts []Product
+    productCol.Find(M{"$or": []M{M{"validfrom": emptyDate}, {"validto": emptyDate}}}).All(&unrestraninedProducts)
+	product = append(product, unrestraninedProducts...)
+    
 	return
 }
 
