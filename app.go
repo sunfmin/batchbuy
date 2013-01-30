@@ -10,16 +10,35 @@ import (
     "strconv"
     "strings"
     "time"
+    "github.com/sunfmin/batchbuy/model"
+    "encoding/json"
 )
 
 type Form map[string][]string
 
 var controller = Controller{}
+var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
+    "newRow": func(index int) bool { 
+        return (index != 0 && index % 3 == 0);
+    },
+    "formatTime": func(date string) string {
+        if date == "" { 
+            return "" 
+        }
+        return stringToTime(date[:10]).Format(timeFmt);
+    },
+})    
+
+const appRoot = "src/github.com/sunfmin/batchbuy"
+
+func init() {
+    appTemplate.ParseFiles([]string{appRoot + "/view/profile.html", appRoot + "/view/product.html", appRoot + "/view/order_list.html", appRoot + "/view/order.html", appRoot + "/view/_app_header.html", appRoot + "/view/_app_footer.html"}...)
+}
 
 func main() {
     // handle assets and pages
-    makeHandler("/assets/", serverFile)
-    makeHandler("/profile.html", serverFile)
+    makeHandler("/assets/", serveFile)
+    makeHandler("/profile.html", profilePage)
     makeHandler("/product.html", productPage)
     makeHandler("/order.html", orderPage)
     makeHandler("/order_list.html", orderListPage)
@@ -28,8 +47,7 @@ func main() {
     handleProfile(controller)
     handleProduct(controller)
     handleOrder(controller)
-    // handleProductAll(controller)
-
+    
     s := &http.Server{
         Addr: ":8080",
         // Handler:        myHandler,
@@ -38,12 +56,13 @@ func main() {
         MaxHeaderBytes: 1 << 20,
     }
     log.Fatal(s.ListenAndServe())
+    
+    // model.ConnectDb()
+    defer model.End()
 }
 
-const appRoot = "/usr/local/go/src/pkg/github.com/sunfmin/batchbuy"
-
-func serverFile(w http.ResponseWriter, r *http.Request) {
-    // todo find out whether there is a predefined variable like __FILE__ in ruby
+func serveFile(w http.ResponseWriter, r *http.Request) {
+    // TODO: find out whether there is a predefined variable like __FILE__ in ruby
     // path problem seems tricky in go, codes below only work when the package is invoked
     // on the root path of this workspace
     if strings.Contains(r.URL.Path, "/assets") {
@@ -53,19 +72,21 @@ func serverFile(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func profilePage(w http.ResponseWriter, r *http.Request) {
+    appTemplate.ExecuteTemplate(w, "profile.html", "")
+}
+
 // TODO: refactor three pages handler below: use multiple template files
 func productPage(w http.ResponseWriter, r *http.Request) {
     products, _ := controller.AllProducts()
-    var templates = template.Must(template.ParseFiles(appRoot + "/view/product.html"))
 
-    templates.ExecuteTemplate(w, "product.html", products)
+    appTemplate.ExecuteTemplate(w, "product.html", products)
 }
 
 func orderPage(w http.ResponseWriter, r *http.Request) {
     products, _ := controller.ProductListOfDate(time.Now().Format(timeFmt))
-    var templates = template.Must(template.ParseFiles(appRoot + "/view/order.html"))
-
-    templates.ExecuteTemplate(w, "order.html", products)
+    
+    appTemplate.ExecuteTemplate(w, "order.html", products)
 }
 
 type orderHolder struct {
@@ -93,10 +114,8 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 
         orders = append(orders, order)
     }
-    fmt.Printf("%s", orders)
 
-    var templates = template.Must(template.ParseFiles(appRoot + "/view/order_list.html"))
-    templates.ExecuteTemplate(w, "order_list.html", orders)
+    appTemplate.ExecuteTemplate(w, "order_list.html", orders)
 }
 
 var decoder = schema.NewDecoder()
@@ -116,35 +135,34 @@ func handleProduct(service api.Service) {
     makeHandler("/product", func(w http.ResponseWriter, r *http.Request) {
         input := api.ProductInput{}
         decoder.Decode(&input, r.Form)
-        fmt.Printf("%s\n%s\n", r.Form["id"][0], input)
-        service.PutProduct(r.Form["id"][0], input)
+        // fmt.Printf("%s\n%s\n", r.Form["productid"][0], input)
+        
+        productId := string("")
+        if (len(r.Form["productid"]) != 0) {
+            productId = r.Form["productid"][0]
+        }
+        product, _ := service.PutProduct(productId, input)
 
-        http.Redirect(w, r, "/product.html", http.StatusFound)
+        // http.Redirect(w, r, "/product.html", http.StatusFound)
+        productBytes, _ := json.Marshal(product)
+        fmt.Fprintf(w, string(productBytes))
     })
 }
 
 func handleOrder(service api.Service) {
     makeHandler("/order", func(w http.ResponseWriter, r *http.Request) {
         count, _ := strconv.Atoi(r.Form["count"][0])
-        service.PutOrder(time.Now().Format(timeFmt), r.Form["email"][0], r.Form["productid"][0], count)
+        service.PutOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0], count)
 
         http.Redirect(w, r, "/order_list.html", http.StatusFound)
     })
 }
 
-// func handleProductAll(service api.Service) {
-// 	makeHandler("/product/all", func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Printf("%s", r.URL.Path)
-// 		
-// 		http.Redirect(w, r, "/product.html", http.StatusFound)
-// 	})
-// }
-
 func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
     http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
         r.ParseForm()
         form := r.Form
-        fmt.Printf("Path: %s\nFormValus: %s\n\n", r.URL.Path, form)
+        fmt.Printf("Path: %s\nMethod: %s\nFormValus: %s\n\n", r.URL.Path, r.Method, form)
 
         fn(w, r)
     })
