@@ -4,14 +4,10 @@ Write API in api
 
 
 ```sh
-mkdir low_tea_at_the_plant low_tea_at_the_plant/bin low_tea_at_the_plant/pkg
-cd low_tea_at_the_plant
-git clone https://github.com/sunfmin/batchbuy
-mv batchbuy src
-export GOPATH=$(pwd):$GOPATH
-export PATH=$(pwd):$PATH
-go get github.com/gorilla/schema
-go get labix.org/v2/mgo
-go install controller
-controller
+export GOPATH=path/to/your/go/workspace
+cd path/to/your/go/workspace
+go get -u github.com/sunfmin/batchbuy
+go install github.com/sunfmin/batchbuy
+mongoimport --db low_tea_at_the_plant --collection products --file /src/github.com/sunfmin/batchbuy/dump/products.json
+bin/batchbuy
 ```
