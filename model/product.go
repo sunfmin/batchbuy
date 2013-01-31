@@ -55,7 +55,7 @@ func ProductListOfDate(date time.Time) (product []Product, err error) {
     if err != nil {
         return
     }
-    emptyDate, err := time.Parse("2006-01-02", "")
+    emptyDate, err := time.Parse("2006-01-02", "0001-01-01")
     if err != nil {
         return
     }

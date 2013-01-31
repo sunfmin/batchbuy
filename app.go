@@ -25,7 +25,11 @@ var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
         if date == "" { 
             return "" 
         }
-        return stringToTime(date[:10]).Format(timeFmt);
+        dateT, err := stringToTime(date[:10])
+        if err != nil {
+            panic(err)
+        }
+        return dateT.Format(timeFmt);
     },
 })    
 
@@ -86,7 +90,7 @@ func productPage(w http.ResponseWriter, r *http.Request) {
 func orderPage(w http.ResponseWriter, r *http.Request) {
     products, err := controller.ProductListOfDate(time.Now().Format(timeFmt))
     if err != nil {
-        fmt.Printf("%s", err)
+        fmt.Printf("%s\n", err)
         return
     }
     
@@ -103,7 +107,7 @@ type orderHolder struct {
 func orderListPage(w http.ResponseWriter, r *http.Request) {
     apiOrders, err := controller.OrderListOfDate(time.Now().Format(timeFmt))
     if err != nil {
-        fmt.Printf("%s", err)
+        fmt.Printf("%s\n", err)
         return
     }
 
@@ -135,7 +139,7 @@ func handleProfile(service api.Service) {
 
         _, err := service.PutUser(input.Email, input)
         if err != nil {
-            fmt.Printf("%s", err)
+            fmt.Printf("%s\n", err)
             return
         }
 
@@ -148,8 +152,8 @@ func handleProduct(service api.Service) {
         input := api.ProductInput{}
         err := decoder.Decode(&input, r.Form)
         if err != nil {
-            fmt.Printf("%s", err)
-            return
+            fmt.Printf("%s\n", err)
+            // return
         }
         // fmt.Printf("%s\n%s\n", r.Form["productid"][0], input)
         
@@ -159,14 +163,14 @@ func handleProduct(service api.Service) {
         }
         product, err := service.PutProduct(productId, input)
         if err != nil {
-            fmt.Printf("%s", err)
+            fmt.Printf("%s\n", err)
             return
         }
 
         // http.Redirect(w, r, "/product.html", http.StatusFound)
         productBytes, err := json.Marshal(product)
         if err != nil {
-            fmt.Printf("%s", err)
+            fmt.Printf("%s\n", err)
             return
         }
         
@@ -178,13 +182,13 @@ func handleOrder(service api.Service) {
     makeHandler("/order", func(w http.ResponseWriter, r *http.Request) {
         count, err := strconv.Atoi(r.Form["count"][0])
         if err != nil {
-            fmt.Printf("%s", err)
+            fmt.Printf("%s\n", err)
             return
         }
         
         _, err = service.PutOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0], count)
         if err != nil {
-            fmt.Printf("%s", err)
+            fmt.Printf("%s\n", err)
             return
         }
 
@@ -196,7 +200,7 @@ func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
     http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
         err := r.ParseForm()
         if err != nil {
-            fmt.Printf("%s", err)
+            fmt.Printf("%s\n", err)
             return
         }
         
