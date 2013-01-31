@@ -84,7 +84,11 @@ func productPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func orderPage(w http.ResponseWriter, r *http.Request) {
-    products, _ := controller.ProductListOfDate(time.Now().Format(timeFmt))
+    products, err := controller.ProductListOfDate(time.Now().Format(timeFmt))
+    if err != nil {
+        fmt.Printf("%s", err)
+        return
+    }
     
     appTemplate.ExecuteTemplate(w, "order.html", products)
 }
@@ -97,7 +101,11 @@ type orderHolder struct {
 }
 
 func orderListPage(w http.ResponseWriter, r *http.Request) {
-    apiOrders, _ := controller.OrderListOfDate(time.Now().Format(timeFmt))
+    apiOrders, err := controller.OrderListOfDate(time.Now().Format(timeFmt))
+    if err != nil {
+        fmt.Printf("%s", err)
+        return
+    }
 
     orders := []orderHolder{}
     var order orderHolder
@@ -125,7 +133,11 @@ func handleProfile(service api.Service) {
         input := api.UserInput{}
         decoder.Decode(&input, r.Form)
 
-        service.PutUser(input.Email, input)
+        _, err := service.PutUser(input.Email, input)
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
 
         http.Redirect(w, r, "/order.html", http.StatusFound)
     })
@@ -134,25 +146,47 @@ func handleProfile(service api.Service) {
 func handleProduct(service api.Service) {
     makeHandler("/product", func(w http.ResponseWriter, r *http.Request) {
         input := api.ProductInput{}
-        decoder.Decode(&input, r.Form)
+        err := decoder.Decode(&input, r.Form)
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
         // fmt.Printf("%s\n%s\n", r.Form["productid"][0], input)
         
         productId := string("")
         if (len(r.Form["productid"]) != 0) {
             productId = r.Form["productid"][0]
         }
-        product, _ := service.PutProduct(productId, input)
+        product, err := service.PutProduct(productId, input)
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
 
         // http.Redirect(w, r, "/product.html", http.StatusFound)
-        productBytes, _ := json.Marshal(product)
+        productBytes, err := json.Marshal(product)
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
+        
         fmt.Fprintf(w, string(productBytes))
     })
 }
 
 func handleOrder(service api.Service) {
     makeHandler("/order", func(w http.ResponseWriter, r *http.Request) {
-        count, _ := strconv.Atoi(r.Form["count"][0])
-        service.PutOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0], count)
+        count, err := strconv.Atoi(r.Form["count"][0])
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
+        
+        _, err = service.PutOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0], count)
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
 
         http.Redirect(w, r, "/order_list.html", http.StatusFound)
     })
@@ -160,7 +194,12 @@ func handleOrder(service api.Service) {
 
 func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
     http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-        r.ParseForm()
+        err := r.ParseForm()
+        if err != nil {
+            fmt.Printf("%s", err)
+            return
+        }
+        
         form := r.Form
         fmt.Printf("Path: %s\nMethod: %s\nFormValus: %s\n\n", r.URL.Path, r.Method, form)
 

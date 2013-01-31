@@ -33,8 +33,11 @@ func (product *Product) Put(id string, input ProductInput) (err error) {
 		id = bson.NewObjectId().Hex()
 	}
 	changeInfo, err := productCol.UpsertId(bson.ObjectIdHex(id), input)
+    if err != nil {
+        return
+    }
 	
-	productCol.FindId(changeInfo.UpsertedId).One(product)
+	err = productCol.FindId(changeInfo.UpsertedId).One(product)
 	
 	return
 }
@@ -49,9 +52,19 @@ func (Product) Remove(id string) (err error) {
 
 func ProductListOfDate(date time.Time) (product []Product, err error) {
 	err = productCol.Find(M{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}}).All(&product)
-    emptyDate, _ := time.Parse("2006-01-02", "")
+    if err != nil {
+        return
+    }
+    emptyDate, err := time.Parse("2006-01-02", "")
+    if err != nil {
+        return
+    }
+    
     var unrestraninedProducts []Product
-    productCol.Find(M{"$or": []M{M{"validfrom": emptyDate}, {"validto": emptyDate}}}).All(&unrestraninedProducts)
+    err = productCol.Find(M{"$or": []M{M{"validfrom": emptyDate}, {"validto": emptyDate}}}).All(&unrestraninedProducts)
+    if err != nil {
+        return
+    }
 	product = append(product, unrestraninedProducts...)
     
 	return

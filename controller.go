@@ -18,7 +18,10 @@ func (Controller) PutProduct(id string, input api.ProductInput) (product *api.Pr
 		ValidTo: stringToTime(input.ValidTo),
 	}
 	modelProduct := model.Product{}
-	modelProduct.Put(id, modelProductInput)
+	err = modelProduct.Put(id, modelProductInput)
+    if err != nil {
+        return
+    }
 	
 	product = modelProduct.ToApi()
 	
@@ -44,7 +47,10 @@ func (Controller) PutUser(email string, input api.UserInput) (user *api.User, er
 		AvatarLink: input.AvatarLink,
 	}
 	fmt.Printf("%s\n", modelUserInput)
-	userModel.Put(email, modelUserInput)
+	err = userModel.Put(email, modelUserInput)
+    if err != nil {
+        return
+    }
 	
 	user = userModel.ToApi()
 	return
@@ -59,7 +65,10 @@ func (Controller) PutOrder(date string, email string, productId string, count in
 	dateD := stringToTime(date)
 	orderInput := model.OrderInput{dateD, productId, email, count}
 	modelOrder := model.Order{}
-	modelOrder.Put(dateD, email, orderInput)
+	err = modelOrder.Put(dateD, email, orderInput)
+    if err != nil {
+        return
+    }
 	order = modelOrder.ToApi()
 	
 	return
@@ -81,7 +90,7 @@ func (Controller) ProductListOfDate(date string) (products []*api.Product, err e
 }
 
 func (Controller) OrderListOfDate(date string) (orders []*api.Order, err error) {
-	orders = model.OrderListOfDateForApi(stringToTime(date))
+	orders, err = model.OrderListOfDateForApi(stringToTime(date))
 	
 	return
 }

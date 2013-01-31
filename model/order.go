@@ -29,14 +29,23 @@ func (order *Order) Put(date time.Time, email string, input OrderInput) (err err
 	// Can't use Upsert here.
 	conds := M{"userid": email, "date": getDayRangeCond(date), "productid": input.ProductId}
 	count, err := orderCol.Find(conds).Count()
+    if err != nil {
+        return
+    }
 	
 	if count == 0 {
-		orderCol.Insert(input)
+		err = orderCol.Insert(input)
 	} else {
-		orderCol.Update(conds, &input)
+		err = orderCol.Update(conds, &input)
 	}
+    if err != nil {
+        return
+    }
 	
-	orderCol.Find(conds).One(order)
+	err = orderCol.Find(conds).One(order)
+    if err != nil {
+        return
+    }
 	
 	return
 }
@@ -84,8 +93,11 @@ func OrderListOfDate(date time.Time) (orders []Order, err error) {
 }
 
 // Generate api.Order data from model.Order data
-func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order) {
-	orders, _ := OrderListOfDate(date)
+func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order, err error) {
+	orders, err := OrderListOfDate(date)
+    if err != nil {
+        return
+    }
 	
 	var newOrderf bool
 	for _, order := range orders {

@@ -21,13 +21,22 @@ type UserInput api.UserInput
 
 func (user *User) Put(email string, input UserInput) (err error) {
 	count, err := userCol.Find(M{"email": email}).Count()
+    if err != nil {
+        return
+    }
 	if count == 0 {
-		userCol.Insert(input)
+		err = userCol.Insert(input)
 	} else {
-		userCol.Update(M{"email": input.Email}, &input)
+		err = userCol.Update(M{"email": input.Email}, &input)
 	}
+    if err != nil {
+        return
+    }
 	
-	userCol.Find(M{"email": input.Email}).One(user)
+	err = userCol.Find(M{"email": input.Email}).One(user)
+    if err != nil {
+        return
+    }
 	
 	return
 }
