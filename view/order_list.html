@@ -1,12 +1,30 @@
 {{template "appHeader"}}
+
+<div id="date-panel">
+    <div class="pull-right">
+        <a id="previous-day" href="/order_list.html?date={{.PreviousDay}}"><</a>
+        <span id="current-date">{{.Date}}</span>
+        <a id="next-day" href="/order_list.html?date={{.NextDay}}">></a>
+    </div>
+    <div style="clear:both; margin-bottom: 5px;"></div>
+</div>
+
 <table class="table table-striped table-hover">
 	<thead>
 		<tr><th>#</th><th>What</th><th>Count</th><th>Who</th></tr>
 	</thead>
 	<tbody>
-	{{range index .}}
+	{{range index .Orders}}
 		<tr><th>{{.Index}}</th><th>{{.Product}}</th><th>{{.Count}}</th><th>{{.Users}}</th></tr>
 	{{end}}
 	</tbody>
 </table>
+
+<div id="copy-panel" class="pull-right">
+    <button id="copy-button" class="btn" data-clipboard-text="{{.OrdersStr}}" title="Click to copy me.">去下单喽(Copy)</button>
+</div>
+<div style="clear:both; margin-bottom: 5px;"></div>
+
+<script src="/assets/ZeroClipboard.min.js"></script>
+<script src="/assets/order_list.js"></script>
 {{template "appFooter"}}

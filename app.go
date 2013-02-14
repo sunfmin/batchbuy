@@ -68,7 +68,7 @@ func main() {
 func serveFile(w http.ResponseWriter, r *http.Request) {
     // TODO: find out whether there is a predefined variable like __FILE__ in ruby
     // path problem seems tricky in go, codes below only work when the package is invoked
-    // on the root path of this workspace
+    // on the GOPATH
     if strings.Contains(r.URL.Path, "/assets") {
         http.ServeFile(w, r, appRoot+"/"+r.URL.Path)
     } else {
@@ -77,24 +77,75 @@ func serveFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func profilePage(w http.ResponseWriter, r *http.Request) {
-    appTemplate.ExecuteTemplate(w, "profile.html", "")
-}
-
-// TODO: refactor three pages handler below: use multiple template files
-func productPage(w http.ResponseWriter, r *http.Request) {
-    products, _ := controller.AllProducts()
-
-    appTemplate.ExecuteTemplate(w, "product.html", products)
-}
-
-func orderPage(w http.ResponseWriter, r *http.Request) {
-    products, err := controller.ProductListOfDate(time.Now().Format(timeFmt))
+    err := appTemplate.ExecuteTemplate(w, "profile.html", "")
     if err != nil {
         fmt.Printf("%s\n", err)
         return
     }
+}
+
+// TODO: refactor three pages handler below: use multiple template files
+func productPage(w http.ResponseWriter, r *http.Request) {
+    products, err := controller.AllProducts()
+    if err != nil {
+        fmt.Printf("%s\n", err)
+        return
+    }
+
+    err = appTemplate.ExecuteTemplate(w, "product.html", products)
+    if err != nil {
+        fmt.Printf("%s\n", err)
+        return
+    }
+}
+
+func orderPage(w http.ResponseWriter, r *http.Request) {
+    email, err := r.Cookie("email")
+    if err != nil {
+        fmt.Printf("Email Cookie: %s\n", err)
+        
+        http.Redirect(w, r, "/profile.html", http.StatusFound)
+        return
+    }
     
-    appTemplate.ExecuteTemplate(w, "order.html", products)
+    user, err := model.GetUser(strings.Replace(email.Value, "%40", "@", 1))
+    if err != nil {
+        fmt.Printf("GetUser: %s\n", err)
+        return
+    }
+    
+    dateM := r.Form["date"]
+    var date time.Time
+    if dateM == nil || dateM[0] == "" {
+        date = time.Now()
+    } else {
+        date, err = stringToTime(dateM[0])
+        if err != nil {
+            fmt.Printf("stringToTime: %s\n", err)
+            return
+        }
+    }
+    
+    pageVar := struct {
+        // OrderedProducts []model.Product
+        Orders []*api.Order
+        AvaliableProducts []model.Product
+        Date string
+        PreviousDay string
+        NextDay string
+    }{
+        Date: date.Format(timeFmt), 
+        PreviousDay: date.AddDate(0, 0, -1).Format(timeFmt),
+        NextDay: date.AddDate(0, 0, 1).Format(timeFmt),
+    }
+    pageVar.AvaliableProducts, err = user.AvaliableProducts(date)
+    pageVar.Orders, err = user.OrdersForApi(date)
+    
+    err = appTemplate.ExecuteTemplate(w, "order.html", pageVar)
+    if err != nil {
+        fmt.Printf("ExecuteTemplate: %s\n", err)
+        return
+    }
 }
 
 type orderHolder struct {
@@ -104,14 +155,28 @@ type orderHolder struct {
     Product string
 }
 
-func orderListPage(w http.ResponseWriter, r *http.Request) {
-    apiOrders, err := controller.OrderListOfDate(time.Now().Format(timeFmt))
+func orderListPage(w http.ResponseWriter, r *http.Request) {    
+    dateM := r.Form["date"]
+    var date time.Time
+    var err error
+    
+    if dateM == nil || dateM[0] == "" {
+        date = time.Now()
+    } else {
+        date, err = stringToTime(dateM[0])
+        if err != nil {
+            fmt.Printf("stringToTime: %s\n", err)
+            return
+        }
+    }
+    
+    apiOrders, err := controller.OrderListOfDate(date.Format(timeFmt))
     if err != nil {
         fmt.Printf("%s\n", err)
         return
     }
 
-    orders := []orderHolder{}
+    orders, ordersStr := []orderHolder{}, ""
     var order orderHolder
     for i, apiOrder := range apiOrders {
         order = orderHolder{}
@@ -123,11 +188,43 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
             userNames = append(userNames, user.Name)
         }
         order.Users = strings.Join(userNames, ", ")
+        ordersStr += strings.Join([]string{strconv.Itoa(order.Index), order.Product, strconv.Itoa(order.Count)}, ", ")
+        ordersStr += ";\n"
+        
+        // fmt.Printf("%s, %s, %s \n", order.Index, order.Product, order.Count)
 
         orders = append(orders, order)
     }
-
-    appTemplate.ExecuteTemplate(w, "order_list.html", orders)
+    
+    // var ordersStr string
+    
+    // for _, order := range orders {
+    //     ordersStr += order.Index
+    //     ordersStr += order.Product
+    //     ordersStr += order.Count
+    //     ordersStr += order.Users
+    // }
+    
+    pageVar := struct {
+        // OrderedProducts []model.Product
+        Orders []orderHolder
+        OrdersStr string
+        Date string
+        PreviousDay string
+        NextDay string
+    }{
+        Orders: orders,
+        OrdersStr: ordersStr,
+        Date: date.Format(timeFmt), 
+        PreviousDay: date.AddDate(0, 0, -1).Format(timeFmt),
+        NextDay: date.AddDate(0, 0, 1).Format(timeFmt),
+    }
+    
+    err = appTemplate.ExecuteTemplate(w, "order_list.html", pageVar)
+    if err != nil {
+        fmt.Printf("%s\n", err)
+        return
+    }
 }
 
 var decoder = schema.NewDecoder()
@@ -151,11 +248,7 @@ func handleProduct(service api.Service) {
     makeHandler("/product", func(w http.ResponseWriter, r *http.Request) {
         input := api.ProductInput{}
         err := decoder.Decode(&input, r.Form)
-        if err != nil {
-            fmt.Printf("%s\n", err)
-            // return
-        }
-        // fmt.Printf("%s\n%s\n", r.Form["productid"][0], input)
+        if err != nil { fmt.Printf("%s\n", err) }
         
         productId := string("")
         if (len(r.Form["productid"]) != 0) {
@@ -167,7 +260,6 @@ func handleProduct(service api.Service) {
             return
         }
 
-        // http.Redirect(w, r, "/product.html", http.StatusFound)
         productBytes, err := json.Marshal(product)
         if err != nil {
             fmt.Printf("%s\n", err)
@@ -180,19 +272,30 @@ func handleProduct(service api.Service) {
 
 func handleOrder(service api.Service) {
     makeHandler("/order", func(w http.ResponseWriter, r *http.Request) {
-        count, err := strconv.Atoi(r.Form["count"][0])
-        if err != nil {
-            fmt.Printf("%s\n", err)
-            return
-        }
+        switch r.Method {
+        case "PUT":
+            count, err := strconv.Atoi(r.Form["count"][0])
+            if err != nil {
+                fmt.Printf("%s\n", err)
+                return
+            }
         
-        _, err = service.PutOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0], count)
-        if err != nil {
-            fmt.Printf("%s\n", err)
-            return
-        }
+            _, err = service.PutOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0], count)
+            if err != nil {
+                fmt.Printf("%s\n", err)
+                return
+            }
 
-        http.Redirect(w, r, "/order_list.html", http.StatusFound)
+            fmt.Fprintf(w, "Save Successfully")
+        case "DELETE":
+            err := service.RemoveOrder(r.Form["date"][0], r.Form["email"][0], r.Form["productid"][0])
+            if err != nil { 
+                fmt.Printf("%s\n", err)
+                return
+            }
+            
+            fmt.Fprintf(w, "Delete Successfully")
+        }
     })
 }
 
@@ -205,7 +308,11 @@ func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
         }
         
         form := r.Form
-        fmt.Printf("Path: %s\nMethod: %s\nFormValus: %s\n\n", r.URL.Path, r.Method, form)
+        if path == "/assets/" {
+            fmt.Printf("Asset: %s\n\n", r.URL.Path)
+        } else {
+            fmt.Printf("Path: %s\nMethod: %s\nFormValus: %s\nCookies: %s\n\n", r.URL.Path, r.Method, form, r.Cookies())            
+        }
 
         fn(w, r)
     })

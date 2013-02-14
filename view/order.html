@@ -1,28 +1,69 @@
-{{template "appHeader"}}                
-<div class="row-fluid"><ul class="thumbnails">
-{{range $index, $product := .}}
-{{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
-    <li class="span4">
-        <form class="thumbnail">
-        <img src="{{.PhotoLink}}">
-        <div class="caption">
-            <h3>{{.Name}}</h3>
-            <div class="input-prepend">
-              <span class="add-on order-add-on">Count</span>
-              <input class="span2" type="number" name="count" placeholder="0">
-            </div>
-            <input type="hidden" name="productid" value="{{.Id}}">
-            <div class="input-prepend">
-              <span class="add-on order-add-on">Date </span>
-              <input class="span2" type="date" name="date">
-            </div>
-        </div>
-      </form>
-    </li>
-{{end}}
-</ul></div>
+{{template "appHeader"}}
 
-<div id="identity-panel">
+<div id="date-panel">
+    <div class="pull-right">
+        <a id="previous-day" href="/order.html?date={{.PreviousDay}}"><</a>
+        <span id="current-date">{{.Date}}</span>
+        <a id="next-day" href="/order.html?date={{.NextDay}}">></a>
+    </div>
+    <div style="clear:both; margin-bottom: 5px;"></div>
+</div>
+
+<div class="row-fluid">
+    <div class="order-panel"><h3>已下订单</h3></div>
+    <ul class="thumbnails">
+    {{range $index, $product := .Orders}}
+    {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
+        <li class="span4">
+            <form class="thumbnail">
+            <img src="{{.Product.PhotoLink}}">
+            <div class="caption">
+                <h4>{{.Product.Name}}</h4>
+                <input type="hidden" name="productid" value="{{.Product.Id}}">
+                <div class="input-prepend">
+                    <button class="btn" name="plus" type="button">+</button>
+                    <button class="btn" name="minus" type="button">-</button>
+                    <input class="span3" value="{{.Count}}" id="appendedInputButtons" type="number">
+                </div>
+            </div>
+          </form>
+        </li>
+    {{end}}
+    </ul>
+</div>
+
+<div class="row-fluid">
+    <div class="order-panel"><h3>其它点心</h3></div>
+    <ul class="thumbnails">
+    {{range $index, $product := .AvaliableProducts}}
+    {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
+        <li class="span4">
+            <form class="thumbnail">
+            <img src="{{.PhotoLink}}">
+            <div class="caption">
+                <h4>{{.Name}}</h4>
+                <input type="hidden" name="productid" value="{{.Id.Hex}}">
+                <div class="input-prepend">
+                    <button class="btn" name="plus" type="button">+</button>
+                    <button class="btn" name="minus" type="button">-</button>
+                    <input class="span3" value="0" id="appendedInputButtons" type="number">
+                </div>
+                <!-- <div class="input-prepend">
+                  <span class="add-on order-add-on">Count</span>
+                  <input class="span2" type="number" name="count" placeholder="0">
+                </div>
+                <div class="input-prepend">
+                  <span class="add-on order-add-on">Date </span>
+                  <input class="span2" type="date" name="date">
+                </div> -->
+            </div>
+          </form>
+        </li>
+    {{end}}
+    </ul>
+</div>
+
+<div id="identity-panel" style="display:none">
     <div class="pull-right">
         <div class="input-prepend">
           <span class="add-on">Email</span>
@@ -31,10 +72,10 @@
     </div>
     <div style="clear:both; margin-bottom: 5px;"></div>
     
-    <a id="submitBtn" class="btn btn-primary pull-right" rel="popover" title="A Title" data-content="And here's some amazing content. It's very engaging. right?">
+    <!-- <a id="submitBtn" class="btn btn-primary pull-right" rel="popover" title="A Title" data-content="And here's some amazing content. It's very engaging. right?">
         Save
     </a>
-    <div style="clear:both; margin-bottom: 5px;"></div>
+    <div style="clear:both; margin-bottom: 5px;"></div> -->
 </div>
 
 <!-- <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

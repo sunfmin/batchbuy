@@ -1,3 +1,5 @@
 $(document).ready(function() {
-    $('a[href="'+ window.location.pathname+ '"]').parent().addClass('active');
+    var a = $('a[href="'+ window.location.pathname+ '"]');
+    a.parent().addClass('active');
+    document.title = $('a[href="'+ window.location.pathname+ '"]').html();
 });

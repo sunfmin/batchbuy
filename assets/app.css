@@ -14,6 +14,13 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
 #app-mark {
 	float: right;
 }
@@ -56,17 +63,22 @@ body {
 
 .nav {
 	margin: 30px auto 15px;
-	width: 350px;
+	width: 450px;
 }
 
 .caption-input {
     width: 190px;
 }
 
+#date-panel {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
 #identity-panel {
     border-top: 1px solid #DDD;
     padding-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 10px;
     height: 40px;
 }
 
@@ -118,4 +130,10 @@ body {
 
 .input-prepend .product-input {
     width: 123px;
+}
+
+.order-panel {
+    border-bottom: 2px solid #DDD;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
 }

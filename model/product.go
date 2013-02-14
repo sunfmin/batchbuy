@@ -52,30 +52,28 @@ func (Product) Remove(id string) (err error) {
 
 func ProductListOfDate(date time.Time) (product []Product, err error) {
 	err = productCol.Find(M{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}}).All(&product)
-    if err != nil {
-        return
-    }
-    emptyDate, err := time.Parse("2006-01-02", "0001-01-01")
-    if err != nil {
-        return
-    }
+    if err != nil { return }
     
-    var unrestraninedProducts []Product
-    err = productCol.Find(M{"$or": []M{M{"validfrom": emptyDate}, {"validto": emptyDate}}}).All(&unrestraninedProducts)
-    if err != nil {
-        return
-    }
-	product = append(product, unrestraninedProducts...)
+    otherProducts, err := unrestrainedProducts()
+	product = append(product, otherProducts...)
     
 	return
+}
+
+func unrestrainedProducts() (products []Product, err error) {
+    emptyDate, err := time.Parse("2006-01-02", "0001-01-01")
+    if err != nil { return }
+    
+    err = productCol.Find(M{"$or": []M{M{"validfrom": emptyDate}, {"validto": emptyDate}}}).All(&products)
+    if err != nil { return }
+    
+    return
 }
 
 // TODO test it
 func ProductListOfDateForApi(date time.Time) (products []*api.Product, err error) {
 	modelProducts, err := ProductListOfDate(date);
-	if err != nil {
-		return
-	}
+	if err != nil { return }
 	
 	for _, modelProduct := range modelProducts {
 		products = append(products, modelProduct.ToApi())

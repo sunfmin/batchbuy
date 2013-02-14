@@ -44,3 +44,10 @@ func TestUpdateUser(t *testing.T) {
 	
 	userCol.RemoveAll(M{})
 }
+
+// func TestAvaliableProducts(t *testing.T) {
+//     initDbForProductTests()
+//     userInput := UserInput{"test", "test@test.com", "link to avatar"}
+//     user := User{}
+//     user.Put("non-exited user", userInput)
+// }

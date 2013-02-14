@@ -3,7 +3,8 @@ package model
 import (
 	"github.com/sunfmin/batchbuy/api"
 	"labix.org/v2/mgo/bson"
-	// "fmt"
+    "time"
+    // "fmt"
 )
 
 var userTN = "users"
@@ -24,6 +25,7 @@ func (user *User) Put(email string, input UserInput) (err error) {
     if err != nil {
         return
     }
+    
 	if count == 0 {
 		err = userCol.Insert(input)
 	} else {
@@ -34,9 +36,6 @@ func (user *User) Put(email string, input UserInput) (err error) {
     }
 	
 	err = userCol.Find(M{"email": input.Email}).One(user)
-    if err != nil {
-        return
-    }
 	
 	return
 }
@@ -45,6 +44,59 @@ func (User) Remove(email string) (err error) {
 	err = userCol.Remove(M{"email": email})
 	
 	return
+}
+
+func GetUser(email string) (user *User, err error) {
+	err = userCol.Find(M{"email": email}).One(&user)
+	
+	return
+}
+
+func (user User) OrderedProducts(date time.Time) (products []Product, err error) {
+    productIds, err := user.orderedProductIds(date)
+    if err != nil { return }
+    
+    err = productCol.Find(M{"_id": M{"$in": productIds}}).All(&products)
+    
+    return
+}
+
+func (user User) AvaliableProducts(date time.Time) (products []Product, err error) {
+    productIds, err := user.orderedProductIds(date)
+    if err != nil { return }
+    
+    emptyDate, err := time.Parse("2006-01-02", "0001-01-01")
+    if err != nil { return }
+    
+    emptyDateProducts := M{"$or": []M{{"validfrom": emptyDate}, {"validto": emptyDate}}}
+    limitedProducts := M{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}}
+    err = productCol.Find(M{"$or": []M{emptyDateProducts, limitedProducts}, "_id": M{"$nin": productIds}}).All(&products)
+    
+    return
+}
+
+func (user User) Orders(date time.Time) (orders []Order, err error) {
+    err = orderCol.Find(M{"date": getDayRangeCond(date), "userid": user.Email}).All(&orders)
+    
+    return
+}
+
+func (user User) OrdersForApi(date time.Time) (orders []*api.Order, err error) {
+    modelOrders, err := user.Orders(date)
+    orders = ordersToApi(modelOrders)
+    
+    return
+}
+
+func (user User) orderedProductIds(date time.Time) (productIds []bson.ObjectId, err error) {
+    orders, err := user.Orders(date)
+    if err != nil { return }
+    
+    for _, order := range orders {
+        productIds = append(productIds, bson.ObjectIdHex(order.ProductId))
+    }
+    
+    return
 }
 
 func (user User) ToApi() (apiUser *api.User) {

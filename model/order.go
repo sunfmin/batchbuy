@@ -50,9 +50,8 @@ func (order *Order) Put(date time.Time, email string, input OrderInput) (err err
 	return
 }
 
-func (order Order) Remove(date time.Time, email string) (err error) {
-	conds := M{"userid": email, "date": getDayRangeCond(date)}
-	err = orderCol.Remove(conds)
+func RemoveOrder(date time.Time, email string, productId string) (err error) {
+	err = orderCol.Remove(M{"userid": email, "date": getDayRangeCond(date), "productid": productId})
 	return
 }
 
@@ -99,7 +98,17 @@ func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order, err error) {
         return
     }
 	
+    apiOrders = ordersToApi(orders)
+	
+	return
+}
+
+// weird error here: can't declare this func in this signature: 
+// func ordersToApi(orders []Order) (apiOrders []*api.Order)
+func ordersToApi(orders []Order) []*api.Order {
 	var newOrderf bool
+    apiOrders := []*api.Order{}
+    
 	for _, order := range orders {
 		newOrderf = true
 		for _, apiOrder := range apiOrders {
@@ -115,11 +124,6 @@ func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order, err error) {
 			apiOrders = append(apiOrders, order.ToApi())
 		}
 	}
-	
-	return
+    
+    return apiOrders
 }
-
-// func getTime(dateStr string) (date time.Time) {
-// 	date, _ = time.Parse(time.RFC3339, dateStr)
-// 	return 
-// }

@@ -100,7 +100,7 @@ func TestOrderListOfDateForApi(t *testing.T) {
 	order.Put(time.Now(), user2.Email, OrderInput{time.Now(), product.Id.Hex(), user2.Email, 2})
 	order.Put(time.Now().AddDate(0, 0, -10), user3.Email, OrderInput{time.Now().AddDate(0, 0, -10), product.Id.Hex(), user3.Email, 2})
 	
-	orderList := OrderListOfDateForApi(time.Now())
+	orderList, _ := OrderListOfDateForApi(time.Now())
 	if len(orderList) != 1 || orderList[0].Count != 4 {
 		fmt.Printf("Get OrderList: %s\n", orderList)
 		t.Errorf("Can't Get Order List Properly")
