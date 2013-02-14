@@ -41,6 +41,7 @@ func init() {
 
 func main() {
     // handle assets and pages
+    makeHandler("/", handleRootVisist)
     makeHandler("/assets/", serveFile)
     makeHandler("/profile.html", profilePage)
     makeHandler("/product.html", productPage)
@@ -297,6 +298,10 @@ func handleOrder(service api.Service) {
             fmt.Fprintf(w, "Delete Successfully")
         }
     })
+}
+
+func handleRootVisist(w http.ResponseWriter, r *http.Request) {
+    http.Redirect(w, r, "/order.html", http.StatusFound)
 }
 
 func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
