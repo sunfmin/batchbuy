@@ -1,9 +1,9 @@
 package model
 
 import (
-	"time"
 	"github.com/sunfmin/batchbuy/api"
 	"labix.org/v2/mgo/bson"
+	"time"
 	// "fmt"
 )
 
@@ -11,17 +11,17 @@ var orderTN = "orders"
 var orderCol = db.C(orderTN)
 
 type Order struct {
-	Id bson.ObjectId "_id"
+	Id        bson.ObjectId "_id"
 	Date      time.Time
-	ProductId string  // => Product.Id.Hex()
-	UserId    string  // => User.Email
+	ProductId string // => Product.Id.Hex()
+	UserId    string // => User.Email
 	Count     int
 }
 
 type OrderInput struct {
 	Date      time.Time
-	ProductId string  // => Product.Id.Hex()
-	UserId    string  // => User.Email
+	ProductId string // => Product.Id.Hex()
+	UserId    string // => User.Email
 	Count     int
 }
 
@@ -29,24 +29,24 @@ func (order *Order) Put(date time.Time, email string, input OrderInput) (err err
 	// Can't use Upsert here.
 	conds := M{"userid": email, "date": getDayRangeCond(date), "productid": input.ProductId}
 	count, err := orderCol.Find(conds).Count()
-    if err != nil {
-        return
-    }
-	
+	if err != nil {
+		return
+	}
+
 	if count == 0 {
 		err = orderCol.Insert(input)
 	} else {
 		err = orderCol.Update(conds, &input)
 	}
-    if err != nil {
-        return
-    }
-	
+	if err != nil {
+		return
+	}
+
 	err = orderCol.Find(conds).One(order)
-    if err != nil {
-        return
-    }
-	
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -58,14 +58,14 @@ func RemoveOrder(date time.Time, email string, productId string) (err error) {
 func (order Order) GetProduct() (product *Product) {
 	product = &Product{}
 	productCol.FindId(bson.ObjectIdHex(order.ProductId)).One(product)
-	
+
 	return
 }
 
 func (order Order) GetUser() (user *User) {
 	user = &User{}
 	userCol.Find(M{"email": order.UserId}).One(user)
-	
+
 	return
 }
 
@@ -75,7 +75,7 @@ func (order Order) ToApi() (apiOrder *api.Order) {
 	apiOrder.Date = order.Date.String()
 	apiOrder.Users = append(apiOrder.Users, order.GetUser().ToApi())
 	apiOrder.Product = order.GetProduct().ToApi()
-	
+
 	return
 }
 
@@ -94,12 +94,12 @@ func OrderListOfDate(date time.Time) (orders []Order, err error) {
 // Generate api.Order data from model.Order data
 func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order, err error) {
 	orders, err := OrderListOfDate(date)
-    if err != nil {
-        return
-    }
-	
-    apiOrders = ordersToApi(orders)
-	
+	if err != nil {
+		return
+	}
+
+	apiOrders = ordersToApi(orders)
+
 	return
 }
 
@@ -107,8 +107,8 @@ func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order, err error) {
 // func ordersToApi(orders []Order) (apiOrders []*api.Order)
 func ordersToApi(orders []Order) []*api.Order {
 	var newOrderf bool
-    apiOrders := []*api.Order{}
-    
+	apiOrders := []*api.Order{}
+
 	for _, order := range orders {
 		newOrderf = true
 		for _, apiOrder := range apiOrders {
@@ -124,6 +124,6 @@ func ordersToApi(orders []Order) []*api.Order {
 			apiOrders = append(apiOrders, order.ToApi())
 		}
 	}
-    
-    return apiOrders
+
+	return apiOrders
 }
