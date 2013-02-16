@@ -274,7 +274,7 @@ func handleProduct(service api.Service) {
 func handleOrder(service api.Service) {
     makeHandler("/order", func(w http.ResponseWriter, r *http.Request) {
         switch r.Method {
-        case "PUT":
+        case "POST":
             count, err := strconv.Atoi(r.Form["count"][0])
             if err != nil {
                 fmt.Printf("%s\n", err)

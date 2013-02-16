@@ -2,47 +2,57 @@ $(document).ready(function() {
     $('input[type=email]').val($.cookie('email'));
     $('input[type=date]').val(moment(new Date).format('YYYY-MM-DD'));
     
-    // monitor plus button
+    // disabled the default enter-key-pressing event on all the forms
+    $('form').keypress( function(event){ if (event.which == '13') { event.preventDefault(); } });
+    
+    var getOrder = function(inputField) {
+        return {
+            email: $('#email').val(),
+            date: $('#current-date').html(),
+            productid: inputField.parent().parent().find('input[type="hidden"]').val(),
+            count: inputField.val()
+        }
+    };
+    
+    var putOrder = function(inputField) {
+        $.ajax('/order', {
+            type: 'POST',
+            data: getOrder(inputField)
+        });
+    };
+    
+    // on count field changing
+    $('input[type=number]').on('change', function() {
+        var input = $(this),
+            val = parseInt(input.val());
+        
+        if (val <= 0) { 
+            input.val(0);
+            $.ajax('/order?' + $.param(getOrder(input)), { type: 'DELETE' });
+        } else {
+            putOrder(input);
+        }
+    });
+    
+    // on clicking plus button
     $('.input-prepend .btn[name="plus"]').on('click', function() {
         var input = $(this).parent().find('input'); 
         input.val(parseInt(input.val()) + 1);
         
-        $.ajax('/order', {
-            type: 'PUT',
-            data: {
-                email: $('#email').val(),
-                date: $('#current-date').html(),
-                productid: $(this).parent().parent().find('input[type="hidden"]').val(),
-                count: input.val()
-            }
-        });
+        putOrder(input);
     });
     
-    // monitor plus button
+    // on clicking minus button
     $('.input-prepend .btn[name="minus"]').on('click', function() {
         var input = $(this).parent().find('input'),
             val = parseInt(input.val()); 
         
-        if (val) { 
+        if (val && val - 1) { 
             input.val(val - 1);
-            
-            $.ajax('/order', {
-                type: 'PUT',
-                data: {
-                    email: $('#email').val(),
-                    date: $('#current-date').html(),
-                    productid: $(this).parent().parent().find('input[type="hidden"]').val(),
-                    count: input.val()
-                }
-            });
+            putOrder(input);
         } else {
-            $.ajax('/order?' + $.param({
-                email: $('#email').val(),
-                date: $('#current-date').html(),
-                productid: $(this).parent().parent().find('input[type="hidden"]').val()
-            }), {
-                type: 'DELETE'
-            });
+            input.val(0);
+            $.ajax('/order?' + $.param(getOrder(input)), { type: 'DELETE' });
         }
     });
     
