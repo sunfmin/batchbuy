@@ -9,9 +9,9 @@ $(document).ready(function() {
 		submitable = !!$("input[name=email]").val();
 		
 		if (submitable) {
-		    $.cookie("email", $("input[name=email]").val());
-		    $.cookie("name", $("input[name=name]").val());
-		    $.cookie("avatarlink", $("input[name=avatarlink]").val());
+		    $.cookie("email", $("input[name=email]").val(), { expires: 365 });
+		    $.cookie("name", $("input[name=name]").val(), { expires: 365 });
+            // $.cookie("avatarlink", $("input[name=avatarlink]").val(), { expires: 365 });
 		}
 		else alert("Name and Email Can't be EMPTY!");
 		return submitable;

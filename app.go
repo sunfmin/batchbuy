@@ -186,28 +186,26 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
         order.Product = apiOrder.Product.Name
         userNames := []string{}
         for _, user := range apiOrder.Users {
-            userNames = append(userNames, user.Name)
+            nameStr := ""
+            count, err := model.GetOrderCount(user.Email, apiOrder.Product.Id, date)
+            if err != nil { 
+                fmt.Printf("%s\n", err)
+                return
+            }
+            nameStr += user.Name
+            nameStr += "("
+            nameStr += strconv.Itoa(count)
+            nameStr += ")"
+            userNames = append(userNames, nameStr)
         }
         order.Users = strings.Join(userNames, ", ")
         ordersStr += strings.Join([]string{strconv.Itoa(order.Index), order.Product, strconv.Itoa(order.Count)}, ", ")
         ordersStr += ";\n"
         
-        // fmt.Printf("%s, %s, %s \n", order.Index, order.Product, order.Count)
-
         orders = append(orders, order)
     }
     
-    // var ordersStr string
-    
-    // for _, order := range orders {
-    //     ordersStr += order.Index
-    //     ordersStr += order.Product
-    //     ordersStr += order.Count
-    //     ordersStr += order.Users
-    // }
-    
     pageVar := struct {
-        // OrderedProducts []model.Product
         Orders []orderHolder
         OrdersStr string
         Date string

@@ -74,9 +74,16 @@ func (user User) AvaliableProducts(date time.Time) (products []Product, err erro
 		return
 	}
 
-	emptyDateProducts := M{"$or": []M{{"validfrom": emptyDate}, {"validto": emptyDate}}}
-	limitedProducts := M{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}}
-	err = productCol.Find(M{"$or": []M{emptyDateProducts, limitedProducts}, "_id": M{"$nin": productIds}}).All(&products)
+	
+	err = productCol.Find(M{
+        "$or": []M{
+            {"validfrom": emptyDate, "validto": emptyDate},
+            {"validfrom": M{"$lte": date}, "validto": emptyDate},
+            {"validfrom": emptyDate, "validto": M{"$gte": date}},
+            {"validfrom": M{"$lte": date}, "validto": M{"$gte": date}},
+        },
+        "_id": M{"$nin": productIds},
+    }).All(&products)
 
 	return
 }
