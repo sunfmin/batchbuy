@@ -186,16 +186,12 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
         order.Product = apiOrder.Product.Name
         userNames := []string{}
         for _, user := range apiOrder.Users {
-            nameStr := ""
             count, err := model.GetOrderCount(user.Email, apiOrder.Product.Id, date)
             if err != nil { 
                 fmt.Printf("%s\n", err)
                 return
             }
-            nameStr += user.Name
-            nameStr += "("
-            nameStr += strconv.Itoa(count)
-            nameStr += ")"
+            nameStr := fmt.Sprintf("%s (%d)", user.Name, count)
             userNames = append(userNames, nameStr)
         }
         order.Users = strings.Join(userNames, ", ")
