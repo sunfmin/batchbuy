@@ -58,7 +58,7 @@ func (user User) OrderedProducts(date time.Time) (products []Product, err error)
 		return
 	}
 
-	err = productCol.Find(M{"_id": M{"$in": productIds}}).All(&products)
+	err = productCol.Find(M{"_id": M{"$in": productIds}}).Sort("Name").All(&products)
 
 	return
 }
@@ -73,7 +73,6 @@ func (user User) AvaliableProducts(date time.Time) (products []Product, err erro
 	if err != nil {
 		return
 	}
-
 	
 	err = productCol.Find(M{
         "$or": []M{
@@ -83,7 +82,7 @@ func (user User) AvaliableProducts(date time.Time) (products []Product, err erro
             {"validfrom": M{"$lte": date}, "validto": M{"$gte": date}},
         },
         "_id": M{"$nin": productIds},
-    }).All(&products)
+    }).Sort("name").All(&products)
 
 	return
 }
