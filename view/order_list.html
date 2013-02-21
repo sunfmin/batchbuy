@@ -20,6 +20,14 @@
 	</tbody>
 </table>
 
+{{if .UnorderedUsers}}
+<div class="alert alert-block" id="warning-block">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <h4>注意啦!</h4>
+  {{.UnorderedUsers}} 还没点任何东西(O.O)...
+</div>
+{{end}}
+
 <div id="copy-panel" class="pull-right">
     <button id="copy-button" class="btn" data-clipboard-text="{{.OrdersStr}}" title="Click to copy me.">去下单喽(Copy)</button>
 </div>

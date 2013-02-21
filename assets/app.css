@@ -137,3 +137,7 @@ input::-webkit-inner-spin-button {
     margin-bottom: 10px;
     padding-bottom: 5px;
 }
+
+#warning-block {
+    margin-top: 20px;
+}

@@ -207,12 +207,29 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
         Date string
         PreviousDay string
         NextDay string
+        UnorderedUsers string
     }{
         Orders: orders,
         OrdersStr: ordersStr,
         Date: date.Format(timeFmt), 
         PreviousDay: date.AddDate(0, 0, -1).Format(timeFmt),
         NextDay: date.AddDate(0, 0, 1).Format(timeFmt),
+    }
+
+    unorderedUsers, err := model.UnorderedUsers(date)
+    if err != nil { 
+        fmt.Printf("%s\n", err)
+        return
+    }
+    
+    userLen := len(unorderedUsers)
+    if userLen != 0 {
+        for i, user := range unorderedUsers {
+            pageVar.UnorderedUsers += user.Name
+            if i != userLen - 1 {
+                pageVar.UnorderedUsers += ", "
+            }
+        }
     }
     
     err = appTemplate.ExecuteTemplate(w, "order_list.html", pageVar)

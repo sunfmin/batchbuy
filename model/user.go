@@ -4,7 +4,7 @@ import (
 	"github.com/sunfmin/batchbuy/api"
 	"labix.org/v2/mgo/bson"
 	"time"
-	// "fmt"
+    // "fmt"
 )
 
 var userTN = "users"
@@ -120,4 +120,33 @@ func (user User) ToApi() (apiUser *api.User) {
 	apiUser.AvatarLink = user.AvatarLink
 
 	return
+}
+
+func UnorderedUsers(date time.Time) (apiUsers []*api.User, err error) {
+    orderedEmails := []string{}
+    err = orderCol.Find(M{"date": getDayRangeCond(date)}).Distinct("userid", &orderedEmails)
+    if err != nil { 
+        return
+    }
+    
+    modelUsers := []User{}
+    err = userCol.Find(M{}).All(&modelUsers)
+    if err != nil { 
+        return
+    }
+
+    for _, modelUser := range modelUsers {
+        orderF := false
+        for _, email := range orderedEmails {
+            if modelUser.Email == email {
+                orderF = true
+                break
+            }
+        }
+        if !orderF {
+            apiUsers = append(apiUsers, modelUser.ToApi())
+        }
+    }
+    
+    return
 }
