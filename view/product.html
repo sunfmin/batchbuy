@@ -20,11 +20,13 @@
             </div>
             <div class="input-prepend">
               <span class="add-on product-add-on">从</span>
-              <input class="span2 product-input" type="date" name="validfrom" value="{{formatTime .ValidFrom}}">
+              <!-- <input class="span2 product-input" type="date" name="validfrom" value="{{formatTime .ValidFrom}}"> -->
+              <input class="span2 product-input datepicker" type="text" name="validfrom" value="{{formatTime .ValidFrom}}">
             </div>
             <div class="input-prepend">
               <span class="add-on product-add-on">到</span>
-              <input class="span2 product-input" type="date" name="validto" value="{{formatTime .ValidTo}}">
+              <!-- <input class="span2 product-input" type="date" name="validto" value="{{formatTime .ValidTo}}"> -->
+              <input class="span2 product-input datepicker" type="text" name="validto" value="{{formatTime .ValidTo}}">
             </div>
             <!-- <a class="btn btn-primary pull-right">Save</a>
             <div style="clear:both;"></div> -->

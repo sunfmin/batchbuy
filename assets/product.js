@@ -1,6 +1,8 @@
 $(document).ready(function() {
     // clean up empty date input
-    $('input[value="0001-01-01"]').val("");
+    // $('input[value="0001-01-01"]').val('');
+    
+    $(".datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
     
     var postUpdate = function() {
         var data = {},
@@ -39,11 +41,11 @@ $(document).ready(function() {
                 </div>\
                 <div class='input-prepend'>\
                   <span class='add-on product-add-on'>From</span>\
-                  <input class='span2 product-input' type='date' name='validfrom' value=''>\
+                  <input class='span2 product-input datepicker' type='text' name='validfrom' value=''>\
                 </div>\
                 <div class='input-prepend'>\
                   <span class='add-on product-add-on'>To</span>\
-                  <input class='span2 product-input' type='date' name='validto' value=''>\
+                  <input class='span2 product-input datepicker' type='text' name='validto' value=''>\
                 </div>\
                 <div id='savingDevice'>\
                     <a class='btn btn-primary pull-right'>Save</a>\
@@ -62,6 +64,9 @@ $(document).ready(function() {
         lastRow.append(templ);
         var currentForm = lastRow.find('form').last();
         currentForm.find('input[name="photolink"]').bind('change', updateImg);
+        $(".datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+        // $(".datepicker").datepicker();
+        // $(".datepicker").datepicker("option", "dateFormat", 'yy-mm-dd');
         
         lastRow.find('li').last().find('a').bind('click', function() {
             var data = {},
@@ -75,31 +80,16 @@ $(document).ready(function() {
                 data: data
             }).done(function(product) {
                 captionPanel.prepend("<input type='hidden' name='productid' value='" + $.parseJSON(product).Id + "'>");
-                // captionPanel.remove("#savingDevice");
                 $("#savingDevice").remove();
                 currentForm.find('input').bind('change', postUpdate);
                 
                 insertNewProductForm();
             });
         });
-        // lastRow.find('li').last().find('input').bind('change', postUpdate);
-        // lastRow.find('li').last().find('input[name="photolink"]').bind('change', updateImg);
     };
     
     $("input").bind('change', postUpdate);
     $('input[name="photolink"]').bind('change', updateImg);
     
     insertNewProductForm();
-    // $("select").bind('change', function() {
-    //     var productId = $(this).val(),
-    //         product = products.filter(function(product) {
-    //             return product.Id == productId;
-    //         })[0];
-    //     if (!product) { product = {ValidFrom: new Date(), ValidTo: new Date()}; }
-    //     $("input[name=name]").val(product.Name);
-    //     $("input[name=photolink]").val(product.PhotoLink);
-    //     $("input[name=price]").val(product.Price);
-    //     $("input[name=validfrom]").val(moment(product.ValidFrom).format('YYYY-MM-DD'));
-    //     $("input[name=validto]").val(moment(product.ValidTo).format('YYYY-MM-DD'));
-    // });
 });
