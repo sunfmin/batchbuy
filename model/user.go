@@ -4,7 +4,7 @@ import (
 	"github.com/sunfmin/batchbuy/api"
 	"labix.org/v2/mgo/bson"
 	"time"
-    // "fmt"
+	// "fmt"
 )
 
 var userTN = "users"
@@ -73,16 +73,16 @@ func (user User) AvaliableProducts(date time.Time) (products []Product, err erro
 	if err != nil {
 		return
 	}
-	
+
 	err = productCol.Find(M{
-        "$or": []M{
-            {"validfrom": emptyDate, "validto": emptyDate},
-            {"validfrom": M{"$lte": date}, "validto": emptyDate},
-            {"validfrom": emptyDate, "validto": M{"$gte": date}},
-            {"validfrom": M{"$lte": date}, "validto": M{"$gte": date}},
-        },
-        "_id": M{"$nin": productIds},
-    }).Sort("name").All(&products)
+		"$or": []M{
+			{"validfrom": emptyDate, "validto": emptyDate},
+			{"validfrom": M{"$lte": date}, "validto": emptyDate},
+			{"validfrom": emptyDate, "validto": M{"$gte": date}},
+			{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}},
+		},
+		"_id": M{"$nin": productIds},
+	}).Sort("name").All(&products)
 
 	return
 }
@@ -123,30 +123,30 @@ func (user User) ToApi() (apiUser *api.User) {
 }
 
 func UnorderedUsers(date time.Time) (apiUsers []*api.User, err error) {
-    orderedEmails := []string{}
-    err = orderCol.Find(M{"date": getDayRangeCond(date)}).Distinct("userid", &orderedEmails)
-    if err != nil { 
-        return
-    }
-    
-    modelUsers := []User{}
-    err = userCol.Find(M{}).All(&modelUsers)
-    if err != nil { 
-        return
-    }
+	orderedEmails := []string{}
+	err = orderCol.Find(M{"date": getDayRangeCond(date)}).Distinct("userid", &orderedEmails)
+	if err != nil {
+		return
+	}
 
-    for _, modelUser := range modelUsers {
-        orderF := false
-        for _, email := range orderedEmails {
-            if modelUser.Email == email {
-                orderF = true
-                break
-            }
-        }
-        if !orderF {
-            apiUsers = append(apiUsers, modelUser.ToApi())
-        }
-    }
-    
-    return
+	modelUsers := []User{}
+	err = userCol.Find(M{}).All(&modelUsers)
+	if err != nil {
+		return
+	}
+
+	for _, modelUser := range modelUsers {
+		orderF := false
+		for _, email := range orderedEmails {
+			if modelUser.Email == email {
+				orderF = true
+				break
+			}
+		}
+		if !orderF {
+			apiUsers = append(apiUsers, modelUser.ToApi())
+		}
+	}
+
+	return
 }

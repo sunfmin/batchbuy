@@ -4,7 +4,7 @@ import (
 	"github.com/sunfmin/batchbuy/api"
 	"labix.org/v2/mgo/bson"
 	"time"
-    // "fmt"
+	// "fmt"
 )
 
 var orderTN = "orders"
@@ -129,10 +129,12 @@ func ordersToApi(orders []Order) []*api.Order {
 }
 
 func GetOrderCount(email string, productId string, date time.Time) (count int, err error) {
-    order := Order{}
-    err = orderCol.Find(M{"userid": email, "productid": productId, "date": getDayRangeCond(date)}).One(&order)
-    if err != nil { return }
-    count = order.Count
-    
-    return
+	order := Order{}
+	err = orderCol.Find(M{"userid": email, "productid": productId, "date": getDayRangeCond(date)}).One(&order)
+	if err != nil {
+		return
+	}
+	count = order.Count
+
+	return
 }
