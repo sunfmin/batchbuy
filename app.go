@@ -64,7 +64,7 @@ func main() {
 	handleOrder(controller)
 
 	s := &http.Server{
-		Addr: ":8080",
+		Addr:           ":8080",
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
@@ -252,8 +252,8 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 func userListPage(w http.ResponseWriter, r *http.Request) {
 	users, err := controller.GetAllUsers()
 	if err != nil {
-	    fmt.Printf("%s\n", err)
-	    return
+		fmt.Printf("%s\n", err)
+		return
 	}
 
 	err = appTemplate.ExecuteTemplate(w, "user_list.html", users)

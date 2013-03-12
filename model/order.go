@@ -76,7 +76,7 @@ func (order Order) ToApi() (apiOrder *api.Order) {
 	apiOrder.Date = order.Date.String()
 	user, err := order.GetUser()
 	if err != nil {
-	    panic(err)
+		panic(err)
 	}
 	apiOrder.Users = append(apiOrder.Users, user.ToApi())
 	apiOrder.Product = order.GetProduct().ToApi()
@@ -95,7 +95,7 @@ func OrderListOfDate(date time.Time) (orders []Order, err error) {
 	allOrders := []Order{}
 	err = orderCol.Find(M{"date": getDayRangeCond(date)}).Sort("productid").All(&allOrders)
 	if err != nil {
-	    return
+		return
 	}
 
 	for _, order := range allOrders {

@@ -78,7 +78,7 @@ func (Controller) RemoveUser(email string) (err error) {
 	return
 }
 
-func (Controller) GetAllUsers() (users []*api.User, err error){
+func (Controller) GetAllUsers() (users []*api.User, err error) {
 	users, err = model.GetAllUsersInApi()
 
 	return

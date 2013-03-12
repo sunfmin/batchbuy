@@ -43,7 +43,7 @@ func (user *User) Put(email string, input UserInput) (err error) {
 func RemoveUser(email string) (err error) {
 	err = userCol.Remove(M{"email": email})
 	if err != nil {
-	    return
+		return
 	}
 	// _, err = orderCol.RemoveAll(M{"userid": email})
 	// if err != nil {
