@@ -40,14 +40,32 @@ func (user *User) Put(email string, input UserInput) (err error) {
 	return
 }
 
-func (User) Remove(email string) (err error) {
+func RemoveUser(email string) (err error) {
 	err = userCol.Remove(M{"email": email})
+	if err != nil {
+	    return
+	}
+	_, err = orderCol.RemoveAll(M{"userid": email})
+	if err != nil {
+	    return
+	}
 
 	return
 }
 
 func GetUser(email string) (user *User, err error) {
 	err = userCol.Find(M{"email": email}).One(&user)
+
+	return
+}
+
+func GetAllUsersInApi() (users []*api.User, err error) {
+	modelUsers := []*User{}
+	err = userCol.Find(M{}).All(&modelUsers)
+
+	for _, modelUser := range modelUsers {
+		users = append(users, modelUser.ToApi())
+	}
 
 	return
 }

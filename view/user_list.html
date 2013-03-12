@@ -1,0 +1,16 @@
+{{template "appHeader"}}
+
+<table class="table table-striped table-hover">
+	<thead>
+		<tr><th>名称</th><th>邮箱</th><th>操作</th></tr>
+	</thead>
+    <tbody>
+	{{range index .}}
+		<tr><th>{{.Name}}</th><th>{{.Email}}</th><th>&nbsp;&nbsp;<a href="#" a_remove_link="true" email-val="{{.Email}}">X </a></th></tr>
+	{{end}}
+    </tbody>
+</table>
+
+<script type="text/javascript" charset="utf-8" src="/assets/user_list.js"></script>
+
+{{template "appFooter"}}

@@ -36,17 +36,27 @@ var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 const appRoot = "src/github.com/sunfmin/batchbuy"
 
 func init() {
-	appTemplate.ParseFiles([]string{appRoot + "/view/profile.html", appRoot + "/view/product.html", appRoot + "/view/order_list.html", appRoot + "/view/order.html", appRoot + "/view/_app_header.html", appRoot + "/view/_app_footer.html"}...)
+	appTemplate.ParseFiles([]string{
+		appRoot + "/view/profile.html",
+		appRoot + "/view/product.html",
+		appRoot + "/view/order_list.html",
+		appRoot + "/view/order.html",
+		appRoot + "/view/user_list.html",
+		appRoot + "/view/_app_header.html",
+		appRoot + "/view/_app_footer.html",
+	}...)
 }
 
 func main() {
 	// handle assets and pages
 	makeHandler("/", handleRootVisist)
+	makeHandler("/favicon.ico", handleFavicon)
 	makeHandler("/assets/", serveFile)
 	makeHandler("/profile.html", profilePage)
 	makeHandler("/product.html", productPage)
 	makeHandler("/order.html", orderPage)
 	makeHandler("/order_list.html", orderListPage)
+	makeHandler("/user_list.html", userListPage)
 
 	// handle api service
 	handleProfile(controller)
@@ -55,14 +65,12 @@ func main() {
 
 	s := &http.Server{
 		Addr: ":8080",
-		// Handler:        myHandler,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	log.Fatal(s.ListenAndServe())
 
-	// model.ConnectDb()
 	defer model.End()
 }
 
@@ -112,6 +120,8 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 	user, err := model.GetUser(strings.Replace(email.Value, "%40", "@", 1))
 	if err != nil {
 		fmt.Printf("GetUser: %s\n", err)
+
+		http.Redirect(w, r, "/profile.html", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -239,20 +249,42 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func userListPage(w http.ResponseWriter, r *http.Request) {
+	users, err := controller.GetAllUsers()
+	if err != nil {
+	    fmt.Printf("%s\n", err)
+	    return
+	}
+
+	err = appTemplate.ExecuteTemplate(w, "user_list.html", users)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+}
+
 var decoder = schema.NewDecoder()
 
 func handleProfile(service api.Service) {
 	makeHandler("/profile", func(w http.ResponseWriter, r *http.Request) {
-		input := api.UserInput{}
-		decoder.Decode(&input, r.Form)
+		switch r.Method {
+		case "POST":
+			input := api.UserInput{}
+			decoder.Decode(&input, r.Form)
 
-		_, err := service.PutUser(input.Email, input)
-		if err != nil {
-			fmt.Printf("%s\n", err)
-			return
+			_, err := service.PutUser(input.Email, input)
+			if err != nil {
+				fmt.Printf("%s\n", err)
+				return
+			}
+
+			http.Redirect(w, r, "/order.html", http.StatusFound)
+		case "DELETE":
+			if err := service.RemoveUser(r.Form["email"][0]); err != nil {
+				fmt.Printf("%s\n", err)
+				return
+			}
 		}
-
-		http.Redirect(w, r, "/order.html", http.StatusFound)
 	})
 }
 
@@ -317,6 +349,10 @@ func handleRootVisist(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/order.html", http.StatusFound)
 }
 
+func handleFavicon(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, appRoot+"/img/favicon.ico")
+}
+
 func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
@@ -327,7 +363,7 @@ func makeHandler(path string, fn func(http.ResponseWriter, *http.Request)) {
 
 		form := r.Form
 		if path == "/assets/" {
-			fmt.Printf("Asset: %s\n\n", r.URL.Path)
+			// fmt.Printf("Asset: %s\n\n", r.URL.Path)
 		} else {
 			fmt.Printf("Path: %s\nMethod: %s\nFormValus: %s\nCookies: %s\n\n", r.URL.Path, r.Method, form, r.Cookies())
 		}

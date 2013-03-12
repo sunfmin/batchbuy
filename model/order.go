@@ -87,7 +87,7 @@ func getDayRangeCond(date time.Time) M {
 }
 
 func OrderListOfDate(date time.Time) (orders []Order, err error) {
-	err = orderCol.Find(M{"date": getDayRangeCond(date)}).All(&orders)
+	err = orderCol.Find(M{"date": getDayRangeCond(date)}).Sort("productid").All(&orders)
 	return
 }
 
@@ -103,7 +103,7 @@ func OrderListOfDateForApi(date time.Time) (apiOrders []*api.Order, err error) {
 	return
 }
 
-// weird error here: can't declare this func in this signature: 
+// weird error here: can't declare this func in this signature:
 // func ordersToApi(orders []Order) (apiOrders []*api.Order)
 func ordersToApi(orders []Order) []*api.Order {
 	var newOrderf bool

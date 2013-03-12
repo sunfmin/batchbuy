@@ -73,6 +73,14 @@ func (Controller) PutUser(email string, input api.UserInput) (user *api.User, er
 }
 
 func (Controller) RemoveUser(email string) (err error) {
+	err = model.RemoveUser(email)
+
+	return
+}
+
+func (Controller) GetAllUsers() (users []*api.User, err error){
+	users, err = model.GetAllUsersInApi()
+
 	return
 }
 
