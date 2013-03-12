@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/sunfmin/batchbuy/api"
+	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"time"
 	// "fmt"
@@ -62,9 +63,9 @@ func (order Order) GetProduct() (product *Product) {
 	return
 }
 
-func (order Order) GetUser() (user *User) {
+func (order Order) GetUser() (user *User, err error) {
 	user = &User{}
-	userCol.Find(M{"email": order.UserId}).One(user)
+	err = userCol.Find(M{"email": order.UserId}).One(user)
 
 	return
 }
@@ -73,7 +74,11 @@ func (order Order) ToApi() (apiOrder *api.Order) {
 	apiOrder = &api.Order{}
 	apiOrder.Count = order.Count
 	apiOrder.Date = order.Date.String()
-	apiOrder.Users = append(apiOrder.Users, order.GetUser().ToApi())
+	user, err := order.GetUser()
+	if err != nil {
+	    panic(err)
+	}
+	apiOrder.Users = append(apiOrder.Users, user.ToApi())
 	apiOrder.Product = order.GetProduct().ToApi()
 
 	return
@@ -87,7 +92,21 @@ func getDayRangeCond(date time.Time) M {
 }
 
 func OrderListOfDate(date time.Time) (orders []Order, err error) {
-	err = orderCol.Find(M{"date": getDayRangeCond(date)}).Sort("productid").All(&orders)
+	allOrders := []Order{}
+	err = orderCol.Find(M{"date": getDayRangeCond(date)}).Sort("productid").All(&allOrders)
+	if err != nil {
+	    return
+	}
+
+	for _, order := range allOrders {
+		_, err := order.GetUser()
+		if err != mgo.ErrNotFound {
+			orders = append(orders, order)
+		} else {
+			continue
+		}
+	}
+
 	return
 }
 
@@ -113,7 +132,12 @@ func ordersToApi(orders []Order) []*api.Order {
 		newOrderf = true
 		for _, apiOrder := range apiOrders {
 			if apiOrder.Product.Id == order.ProductId {
-				apiOrder.Users = append(apiOrder.Users, order.GetUser().ToApi())
+				user, err := order.GetUser()
+				if err != nil {
+					panic(err)
+				}
+
+				apiOrder.Users = append(apiOrder.Users, user.ToApi())
 				apiOrder.Count += order.Count
 
 				newOrderf = false

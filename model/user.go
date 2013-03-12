@@ -45,10 +45,10 @@ func RemoveUser(email string) (err error) {
 	if err != nil {
 	    return
 	}
-	_, err = orderCol.RemoveAll(M{"userid": email})
-	if err != nil {
-	    return
-	}
+	// _, err = orderCol.RemoveAll(M{"userid": email})
+	// if err != nil {
+	//     return
+	// }
 
 	return
 }
