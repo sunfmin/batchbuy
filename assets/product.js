@@ -3,6 +3,10 @@ $(document).ready(function() {
         $("html, body").animate({ scrollTop: $('html, body').height() }, "slow")
     });
 
+    $('#back-to-page-top-btn').bind('click', function() {
+        $("html, body").animate({ scrollTop: 0 }, "slow")
+    });
+
     $('div[product-state]').each(function() {
         var validFrom = moment($(this).parent().find('input[name=validfrom]').val()),
             validTo = moment($(this).parent().find('input[name=validto]').val());

@@ -24,8 +24,8 @@
               <span class="add-on product-add-on">图片链接</span>
               <input class="span2 product-input" type="text" name="photolink" value="{{.PhotoLink}}">
             </div>
-            <input type="hidden" name="validfrom" value="{{.ValidFrom}}">
-            <input type="hidden" name="validto" value="{{.ValidTo}}">
+            <input type="hidden" name="validfrom" value="{{formatTime .ValidFrom}}">
+            <input type="hidden" name="validto" value="{{formatTime .ValidTo}}">
             <div class="btn btn-primary pull-right" product-state="true">有货</div>
             <div style="clear:both;"></div>
             <!-- <div class="input-prepend">
@@ -40,5 +40,11 @@
     </form></li>
 {{end}}
 </ul></div>
+
+<div style="border-top: 2px solid #DDD; padding-top: 10px;">
+    <div class="btn pull-right" style="margin-bottom: 5px;" id="back-to-page-top-btn">回到顶部</div>
+    <div style="clear: both;"></div>
+</div>
+
 <script src="/assets/product.js"></script>
 {{template "appFooter"}}
