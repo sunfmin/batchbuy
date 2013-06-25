@@ -1,5 +1,9 @@
 {{template "appHeader"}}
 
+<script type="text/javascript">
+    document.isNoMoreOrderToday = {{ .IsNoMoreOrderToday }}
+</script>
+
 <div id="date-panel">
     <div class="pull-right">
         <a id="previous-day" href="/order_list.html?date={{.PreviousDay}}"><</a>
@@ -28,8 +32,15 @@
 </div>
 {{end}}
 
-<div id="copy-panel" class="pull-right">
-    <button id="copy-button" class="btn" data-clipboard-text="{{.OrdersStr}}" title="Click to copy me.">去下单喽(Copy)</button>
+
+<div class="pull-right">
+    <div id="copy-panel">
+        <button id="copy-button" class="btn" data-clipboard-text="{{.OrdersStr}}" title="Click to copy me.">去下单喽(Copy)</button>
+    </div>
+
+    <div id="allow-new-order-again" style="margin-top:5px;display:none;">
+        <button id="copy-button" class="btn btn-warning" data-clipboard-text="{{.OrdersStr}}" title="Click to copy me.">给某人个机会(^.^)</button>
+    </div>
 </div>
 <div style="clear:both; margin-bottom: 5px;"></div>
 

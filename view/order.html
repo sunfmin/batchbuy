@@ -1,5 +1,9 @@
 {{template "appHeader"}}
 
+<script type="text/javascript">
+    document.isNoMoreOrderToday = {{ .IsNoMoreOrderToday }}
+</script>
+
 <div id="date-panel">
     <div class="pull-right">
         <a id="previous-day" href="/order.html?date={{.PreviousDay}}"><</a>
@@ -76,6 +80,21 @@
         Save
     </a>
     <div style="clear:both; margin-bottom: 5px;"></div> -->
+</div>
+
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Poor boy, it's too late, the train has leave</h3>
+  </div>
+  <div class="modal-body">
+    <p>Our low tea moment is on its way, and you will never catch it anyhow.</p>
+    <p>婷婷已经下单了，你没得点了。但是你可以去问问她还能不能补单。</p>
+    <p>Be earlier next time. :-)</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+  </div>
 </div>
 
 <!-- <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

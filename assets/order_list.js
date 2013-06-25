@@ -1,11 +1,33 @@
 $(document).ready(function() {
-    clip = new ZeroClipboard($("#copy-button"), { 
+    var clip = new ZeroClipboard($("#copy-button"), {
         moviePath: "/assets/ZeroClipboard.swf",
         hoverClass: "bootstrap-btn-hover",
         activeClass: "bootstrap-btn-active"
     });
-    // $('#copy-button-view').bind('click', function() {
-    // $('#copy-button').click();
-    // console.log('clicking');
-    // })
+
+    clip.on('complete', function() {
+    	$.ajax('/no_more_order_today', {
+    		method: 'POST',
+    		data: { no_more_order_today: true }
+    	}).done(function() {
+            $('#allow-new-order-again').show();
+        });
+    });
+
+    var today = moment(new Date()),
+        currentPageDate = moment($('#current-date').text(), 'YYYY-MM-DD'),
+        sameDate = today.format('YYYY-MM-DD') == currentPageDate.format('YYYY-MM-DD');
+
+    if (document.isNoMoreOrderToday && sameDate) {
+        $('#allow-new-order-again').show();
+    }
+
+    $('#allow-new-order-again').click(function() {
+        $.ajax('/make_more_order_today', {
+            method: 'POST',
+            data: { make_more_order_today: true }
+        }).done(function() {
+            $('#allow-new-order-again').hide();
+        });
+    });
 });

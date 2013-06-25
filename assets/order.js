@@ -85,4 +85,12 @@ $(document).ready(function() {
             $.ajax('/order?' + $.param(getOrder(input)), { type: 'DELETE' }).done(doneCallback);
         }
     });
+
+    var today = moment(new Date()),
+        currentPageDate = moment($('#current-date').text(), 'YYYY-MM-DD'),
+        sameDate = today.format('YYYY-MM-DD') == currentPageDate.format('YYYY-MM-DD');
+
+    if (document.isNoMoreOrderToday && sameDate) {
+        $('#myModal').modal()
+    }
 });
