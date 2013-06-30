@@ -8,7 +8,7 @@ $(document).ready(function() {
     clip.on('complete', function() {
     	$.ajax('/no_more_order_today', {
     		method: 'POST',
-    		data: { no_more_order_today: true }
+    		data: { date: $('#current-date').text() }
     	}).done(function() {
             $('#allow-new-order-again').show();
         });
@@ -25,7 +25,7 @@ $(document).ready(function() {
     $('#allow-new-order-again').click(function() {
         $.ajax('/make_more_order_today', {
             method: 'POST',
-            data: { make_more_order_today: true }
+            data: { date: $('#current-date').text() }
         }).done(function() {
             $('#allow-new-order-again').hide();
         });

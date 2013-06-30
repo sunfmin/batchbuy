@@ -156,7 +156,8 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 	pageVar.AvaliableProducts, err = user.AvaliableProducts(date)
 	pageVar.Orders, err = user.OrdersForApi(date)
 
-	pageVar.IsNoMoreOrderToday, err = model.IsNoMoreOrderToday()
+	// today := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	pageVar.IsNoMoreOrderToday, err = model.IsNoMoreOrderToday(time.Now())
 	if err != nil {
 		fmt.Printf("IsNoMoreOrderToday: %s\n", err)
 		return
@@ -243,7 +244,10 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageVar.IsNoMoreOrderToday, err = model.IsNoMoreOrderToday()
+	// todayD := time.Now()
+	// today := time.Date(todayD.Year(), todayD.Month(), todayD.Day(), 0, 0, 0, 0, todayD.Location())
+	// fmt.Println(today)
+	pageVar.IsNoMoreOrderToday, err = model.IsNoMoreOrderToday(time.Now())
 	if err != nil {
 		fmt.Printf("IsNoMoreOrderToday: %s\n", err)
 		return
@@ -307,8 +311,13 @@ func handleProfile(service api.Service) {
 
 func handleNoMoreOrderToday(service api.Service) {
 	makeHandler("/no_more_order_today", func(w http.ResponseWriter, r *http.Request) {
-		err := model.NoMoreOrderToday()
+		date, err := stringToTime(r.Form["date"][0])
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
 
+		err = model.NoMoreOrderToday(date)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			return
@@ -320,8 +329,13 @@ func handleNoMoreOrderToday(service api.Service) {
 
 func handleMakeMoreOrderToday(service api.Service) {
 	makeHandler("/make_more_order_today", func(w http.ResponseWriter, r *http.Request) {
-		err := model.MakeMoreOrderToday()
+		date, err := stringToTime(r.Form["date"][0])
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
 
+		err = model.MakeMoreOrderToday(date)
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			return

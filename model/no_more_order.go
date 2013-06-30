@@ -16,20 +16,20 @@ type NoMoreOrder struct {
 	Date time.Time
 }
 
-func NoMoreOrderToday() error {
-	date := time.Now()
-	return noMoreOrderCol.Insert(bson.M{"date": time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())})
+func NoMoreOrderToday(date time.Time) error {
+	// date := time.Now()
+	return noMoreOrderCol.Insert(bson.M{"date": date})
 }
 
-func IsNoMoreOrderToday() (bool, error) {
-	date := time.Now()
-	count, err := noMoreOrderCol.Find(bson.M{"date": time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())}).Count()
+func IsNoMoreOrderToday(date time.Time) (bool, error) {
+	// date := time.Now()
+	count, err := noMoreOrderCol.Find(bson.M{"date": getDayRangeCond(date)}).Count()
 
 	return count > 0, err
 }
 
-func MakeMoreOrderToday() error {
-	date := time.Now()
-	_, err := noMoreOrderCol.RemoveAll(bson.M{"date": time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())})
+func MakeMoreOrderToday(date time.Time) error {
+	// date := time.Now()
+	_, err := noMoreOrderCol.RemoveAll(bson.M{"date": getDayRangeCond(date)})
 	return err
 }
