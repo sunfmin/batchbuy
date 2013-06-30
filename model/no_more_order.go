@@ -1,6 +1,7 @@
 package model
 
 import (
+
 	// "github.com/sunfmin/batchbuy/api"
 	// "labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -22,8 +23,7 @@ func NoMoreOrderToday(date time.Time) error {
 }
 
 func IsNoMoreOrderToday(date time.Time) (bool, error) {
-	// date := time.Now()
-	count, err := noMoreOrderCol.Find(bson.M{"date": getDayRangeCond(date)}).Count()
+	count, err := noMoreOrderCol.Find(bson.M{"date": date}).Count()
 
 	return count > 0, err
 }

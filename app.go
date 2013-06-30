@@ -65,6 +65,7 @@ func main() {
 	handleOrder(controller)
 	handleNoMoreOrderToday(controller)
 	handleMakeMoreOrderToday(controller)
+	handleIsNoMoreOrderToday(controller)
 
 	s := &http.Server{
 		Addr:           ":8080",
@@ -342,6 +343,30 @@ func handleMakeMoreOrderToday(service api.Service) {
 		}
 
 		fmt.Fprintf(w, "Success")
+	})
+}
+
+func handleIsNoMoreOrderToday(service api.Service) {
+	makeHandler("/is_no_more_order_today", func(w http.ResponseWriter, r *http.Request) {
+		date, err := stringToTime(r.Form["date"][0])
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
+
+		isNoMore, err := model.IsNoMoreOrderToday(date)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
+
+		// data, err := json.Marshal(map[string]bool{"IsNoMoreOrderTdoay": isNoMore})
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
+
+		fmt.Fprintf(w, fmt.Sprintf("%t", isNoMore))
 	})
 }
 

@@ -14,13 +14,14 @@ $(document).ready(function() {
         });
     });
 
-    var today = moment(new Date()),
-        currentPageDate = moment($('#current-date').text(), 'YYYY-MM-DD'),
-        sameDate = today.format('YYYY-MM-DD') == currentPageDate.format('YYYY-MM-DD');
+    // no more order today
+     $.ajax({
+        url: 'is_no_more_order_today?date=' + $('#current-date').text()
+    }).done(function(response) {
+        if (response != 'true') { return; };
 
-    if (document.isNoMoreOrderToday && sameDate) {
         $('#allow-new-order-again').show();
-    }
+    });
 
     $('#allow-new-order-again').click(function() {
         $.ajax('/make_more_order_today', {
