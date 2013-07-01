@@ -1,4 +1,12 @@
 $(document).ready(function() {
+    var currentUser = $.cookie('email'),
+        managable = ['venustingting@gmail.com', 'bom.d.van@gmail.com'].indexOf(currentUser) != -1;
+
+    if (!managable) {
+        $("#copy-button").remove();
+        return;
+    };
+
     var clip = new ZeroClipboard($("#copy-button"), {
         moviePath: "/assets/ZeroClipboard.swf",
         hoverClass: "bootstrap-btn-hover",
