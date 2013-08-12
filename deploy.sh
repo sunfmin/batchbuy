@@ -1,2 +1,2 @@
-scp run_on_server_for_batchbuy.sh ubuntu@qortex.theplant-dev.com:/home/ubuntu
-ssh ubuntu@qortex.theplant-dev.com "sudo chmod +x /home/ubuntu/run_on_server_for_batchbuy.sh && sudo /home/ubuntu/run_on_server_for_batchbuy.sh"
+scp run_on_server_for_batchbuy.sh app@qortex.theplant-dev.com:/home/app
+ssh app@qortex.theplant-dev.com "chmod +x /home/app/run_on_server_for_batchbuy.sh && /home/app/run_on_server_for_batchbuy.sh"
