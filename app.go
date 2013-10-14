@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/schema"
 	"github.com/sunfmin/batchbuy/api"
 	"github.com/sunfmin/batchbuy/model"
+	"go/build"
 	"html/template"
 	"log"
 	"net/http"
@@ -33,9 +34,11 @@ var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 	},
 })
 
-const appRoot = "src/github.com/sunfmin/batchbuy"
+var appRoot string
 
 func init() {
+	appRoot = build.Default.GOPATH + "/src/github.com/sunfmin/batchbuy"
+
 	appTemplate.ParseFiles([]string{
 		appRoot + "/view/profile.html",
 		appRoot + "/view/product.html",
