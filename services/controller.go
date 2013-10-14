@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"fmt"
@@ -17,11 +17,11 @@ func (Controller) PutProduct(id string, input api.ProductInput) (product *api.Pr
 		input.ValidTo = "0001-01-01"
 	}
 
-	validFromT, err := stringToTime(input.ValidFrom)
+	validFromT, err := StringToTime(input.ValidFrom)
 	if err != nil {
 		return
 	}
-	validToT, err := stringToTime(input.ValidTo)
+	validToT, err := StringToTime(input.ValidTo)
 	if err != nil {
 		return
 	}
@@ -44,10 +44,10 @@ func (Controller) PutProduct(id string, input api.ProductInput) (product *api.Pr
 	return
 }
 
-const timeFmt = "2006-01-02"
+const TimeFmt = "2006-01-02"
 
-func stringToTime(str string) (date time.Time, err error) {
-	date, err = time.Parse(timeFmt, str)
+func StringToTime(str string) (date time.Time, err error) {
+	date, err = time.Parse(TimeFmt, str)
 	return
 }
 
@@ -85,7 +85,7 @@ func (Controller) GetAllUsers() (users []*api.User, err error) {
 }
 
 func (Controller) PutOrder(date string, email string, productId string, count int) (order *api.Order, err error) {
-	dateD, err := stringToTime(date)
+	dateD, err := StringToTime(date)
 	if err != nil {
 		return
 	}
@@ -102,7 +102,7 @@ func (Controller) PutOrder(date string, email string, productId string, count in
 }
 
 func (Controller) RemoveOrder(date string, email string, productId string) (err error) {
-	dateD, err := stringToTime(date)
+	dateD, err := StringToTime(date)
 	if err != nil {
 		return
 	}
@@ -118,7 +118,7 @@ func (Controller) AllProducts() (products []*api.Product, err error) {
 }
 
 func (Controller) ProductListOfDate(date string) (products []*api.Product, err error) {
-	dateT, err := stringToTime(date)
+	dateT, err := StringToTime(date)
 	if err != nil {
 		return
 	}
@@ -128,7 +128,7 @@ func (Controller) ProductListOfDate(date string) (products []*api.Product, err e
 }
 
 func (Controller) OrderListOfDate(date string) (orders []*api.Order, err error) {
-	dateT, err := stringToTime(date)
+	dateT, err := StringToTime(date)
 	if err != nil {
 		return
 	}

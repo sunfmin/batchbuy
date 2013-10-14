@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/schema"
 	"github.com/sunfmin/batchbuy/api"
 	"github.com/sunfmin/batchbuy/model"
+	"github.com/sunfmin/batchbuy/services"
 	"go/build"
 	"html/template"
 	"log"
@@ -17,7 +18,7 @@ import (
 
 type Form map[string][]string
 
-var controller = Controller{}
+var controller = services.Controller{}
 var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 	"newRow": func(index int) bool {
 		return (index != 0 && index%3 == 0)
@@ -26,11 +27,11 @@ var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 		if date == "" {
 			return ""
 		}
-		dateT, err := stringToTime(date[:10])
+		dateT, err := services.StringToTime(date[:10])
 		if err != nil {
 			panic(err)
 		}
-		return dateT.Format(timeFmt)
+		return dateT.Format(services.TimeFmt)
 	},
 })
 
@@ -137,9 +138,9 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 	if dateM == nil || dateM[0] == "" {
 		date = time.Now()
 	} else {
-		date, err = stringToTime(dateM[0])
+		date, err = services.StringToTime(dateM[0])
 		if err != nil {
-			fmt.Printf("stringToTime: %s\n", err)
+			fmt.Printf("services.StringToTime: %s\n", err)
 			return
 		}
 	}
@@ -153,9 +154,9 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 		NextDay            string
 		IsNoMoreOrderToday bool
 	}{
-		Date:        date.Format(timeFmt),
-		PreviousDay: date.AddDate(0, 0, -1).Format(timeFmt),
-		NextDay:     date.AddDate(0, 0, 1).Format(timeFmt),
+		Date:        date.Format(services.TimeFmt),
+		PreviousDay: date.AddDate(0, 0, -1).Format(services.TimeFmt),
+		NextDay:     date.AddDate(0, 0, 1).Format(services.TimeFmt),
 	}
 	pageVar.AvaliableProducts, err = user.AvaliableProducts(date)
 	pageVar.Orders, err = user.OrdersForApi(date)
@@ -189,14 +190,14 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 	if dateM == nil || dateM[0] == "" {
 		date = time.Now()
 	} else {
-		date, err = stringToTime(dateM[0])
+		date, err = services.StringToTime(dateM[0])
 		if err != nil {
-			fmt.Printf("stringToTime: %s\n", err)
+			fmt.Printf("services.StringToTime: %s\n", err)
 			return
 		}
 	}
 
-	apiOrders, err := controller.OrderListOfDate(date.Format(timeFmt))
+	apiOrders, err := controller.OrderListOfDate(date.Format(services.TimeFmt))
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return
@@ -237,9 +238,9 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 	}{
 		Orders:      orders,
 		OrdersStr:   ordersStr,
-		Date:        date.Format(timeFmt),
-		PreviousDay: date.AddDate(0, 0, -1).Format(timeFmt),
-		NextDay:     date.AddDate(0, 0, 1).Format(timeFmt),
+		Date:        date.Format(services.TimeFmt),
+		PreviousDay: date.AddDate(0, 0, -1).Format(services.TimeFmt),
+		NextDay:     date.AddDate(0, 0, 1).Format(services.TimeFmt),
 	}
 
 	unorderedUsers, err := model.UnorderedUsers(date)
@@ -315,7 +316,7 @@ func handleProfile(service api.Service) {
 
 func handleNoMoreOrderToday(service api.Service) {
 	makeHandler("/no_more_order_today", func(w http.ResponseWriter, r *http.Request) {
-		date, err := stringToTime(r.Form["date"][0])
+		date, err := services.StringToTime(r.Form["date"][0])
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			return
@@ -333,7 +334,7 @@ func handleNoMoreOrderToday(service api.Service) {
 
 func handleMakeMoreOrderToday(service api.Service) {
 	makeHandler("/make_more_order_today", func(w http.ResponseWriter, r *http.Request) {
-		date, err := stringToTime(r.Form["date"][0])
+		date, err := services.StringToTime(r.Form["date"][0])
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			return
@@ -351,7 +352,7 @@ func handleMakeMoreOrderToday(service api.Service) {
 
 func handleIsNoMoreOrderToday(service api.Service) {
 	makeHandler("/is_no_more_order_today", func(w http.ResponseWriter, r *http.Request) {
-		date, err := stringToTime(r.Form["date"][0])
+		date, err := services.StringToTime(r.Form["date"][0])
 		if err != nil {
 			fmt.Printf("%s\n", err)
 			return
