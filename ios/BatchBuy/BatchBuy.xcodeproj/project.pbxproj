@@ -15,8 +15,8 @@
 		B549BFBC180BD1D700F01A4A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFBB180BD1D700F01A4A /* AppDelegate.m */; };
 		B549BFBF180BD1D700F01A4A /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B549BFBD180BD1D700F01A4A /* Main_iPhone.storyboard */; };
 		B549BFC2180BD1D700F01A4A /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B549BFC0180BD1D700F01A4A /* Main_iPad.storyboard */; };
-		B549BFC5180BD1D700F01A4A /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFC4180BD1D700F01A4A /* FirstViewController.m */; };
-		B549BFC8180BD1D700F01A4A /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFC7180BD1D700F01A4A /* SecondViewController.m */; };
+		B549BFC5180BD1D700F01A4A /* MyOrdersController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFC4180BD1D700F01A4A /* MyOrdersController.m */; };
+		B549BFC8180BD1D700F01A4A /* AllOrdersController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFC7180BD1D700F01A4A /* AllOrdersController.m */; };
 		B549BFCA180BD1D700F01A4A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B549BFC9180BD1D700F01A4A /* Images.xcassets */; };
 		B549BFD1180BD1D700F01A4A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549BFD0180BD1D700F01A4A /* XCTest.framework */; };
 		B549BFD2180BD1D700F01A4A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549BFAB180BD1D700F01A4A /* Foundation.framework */; };
@@ -24,6 +24,22 @@
 		B549BFDB180BD1D700F01A4A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B549BFD9180BD1D700F01A4A /* InfoPlist.strings */; };
 		B549BFDD180BD1D700F01A4A /* BatchBuyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFDC180BD1D700F01A4A /* BatchBuyTests.m */; };
 		B549BFE8180BD25000F01A4A /* Api.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFE7180BD25000F01A4A /* Api.m */; };
+		B549BFEB180BE81100F01A4A /* ProductTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFEA180BE81100F01A4A /* ProductTableViewCell.m */; };
+		B549BFF1180BF3EA00F01A4A /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549BFF0180BF3EA00F01A4A /* ImageIO.framework */; };
+		B549C010180BFB3000F01A4A /* MKAnnotationView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFF4180BFB3000F01A4A /* MKAnnotationView+WebCache.m */; };
+		B549C011180BFB3000F01A4A /* NSData+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFF6180BFB3000F01A4A /* NSData+GIF.m */; };
+		B549C012180BFB3000F01A4A /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFF8180BFB3000F01A4A /* SDImageCache.m */; };
+		B549C013180BFB3000F01A4A /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFFA180BFB3000F01A4A /* SDWebImageCompat.m */; };
+		B549C014180BFB3000F01A4A /* SDWebImageDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFFC180BFB3000F01A4A /* SDWebImageDecoder.m */; };
+		B549C015180BFB3000F01A4A /* SDWebImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFFE180BFB3000F01A4A /* SDWebImageDownloader.m */; };
+		B549C016180BFB3000F01A4A /* SDWebImageDownloaderOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C000180BFB3000F01A4A /* SDWebImageDownloaderOperation.m */; };
+		B549C017180BFB3000F01A4A /* SDWebImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C002180BFB3000F01A4A /* SDWebImageManager.m */; };
+		B549C018180BFB3000F01A4A /* SDWebImagePrefetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C005180BFB3000F01A4A /* SDWebImagePrefetcher.m */; };
+		B549C019180BFB3000F01A4A /* UIButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C007180BFB3000F01A4A /* UIButton+WebCache.m */; };
+		B549C01A180BFB3000F01A4A /* UIImage+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C009180BFB3000F01A4A /* UIImage+GIF.m */; };
+		B549C01B180BFB3000F01A4A /* UIImage+MultiFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C00B180BFB3000F01A4A /* UIImage+MultiFormat.m */; };
+		B549C01C180BFB3000F01A4A /* UIImage+WebP.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C00D180BFB3000F01A4A /* UIImage+WebP.m */; };
+		B549C01D180BFB3000F01A4A /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C00F180BFB3000F01A4A /* UIImageView+WebCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,10 +65,10 @@
 		B549BFBB180BD1D700F01A4A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		B549BFBE180BD1D700F01A4A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
 		B549BFC1180BD1D700F01A4A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
-		B549BFC3180BD1D700F01A4A /* FirstViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FirstViewController.h; sourceTree = "<group>"; };
-		B549BFC4180BD1D700F01A4A /* FirstViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FirstViewController.m; sourceTree = "<group>"; };
-		B549BFC6180BD1D700F01A4A /* SecondViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecondViewController.h; sourceTree = "<group>"; };
-		B549BFC7180BD1D700F01A4A /* SecondViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
+		B549BFC3180BD1D700F01A4A /* MyOrdersController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyOrdersController.h; sourceTree = "<group>"; };
+		B549BFC4180BD1D700F01A4A /* MyOrdersController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyOrdersController.m; sourceTree = "<group>"; };
+		B549BFC6180BD1D700F01A4A /* AllOrdersController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AllOrdersController.h; sourceTree = "<group>"; };
+		B549BFC7180BD1D700F01A4A /* AllOrdersController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AllOrdersController.m; sourceTree = "<group>"; };
 		B549BFC9180BD1D700F01A4A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		B549BFCF180BD1D700F01A4A /* BatchBuyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BatchBuyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B549BFD0180BD1D700F01A4A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -61,6 +77,38 @@
 		B549BFDC180BD1D700F01A4A /* BatchBuyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BatchBuyTests.m; sourceTree = "<group>"; };
 		B549BFE6180BD25000F01A4A /* Api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Api.h; sourceTree = "<group>"; };
 		B549BFE7180BD25000F01A4A /* Api.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Api.m; sourceTree = "<group>"; };
+		B549BFE9180BE81100F01A4A /* ProductTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductTableViewCell.h; sourceTree = "<group>"; };
+		B549BFEA180BE81100F01A4A /* ProductTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductTableViewCell.m; sourceTree = "<group>"; };
+		B549BFF0180BF3EA00F01A4A /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		B549BFF3180BFB3000F01A4A /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+WebCache.h"; sourceTree = "<group>"; };
+		B549BFF4180BFB3000F01A4A /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+WebCache.m"; sourceTree = "<group>"; };
+		B549BFF5180BFB3000F01A4A /* NSData+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+GIF.h"; sourceTree = "<group>"; };
+		B549BFF6180BFB3000F01A4A /* NSData+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+GIF.m"; sourceTree = "<group>"; };
+		B549BFF7180BFB3000F01A4A /* SDImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCache.h; sourceTree = "<group>"; };
+		B549BFF8180BFB3000F01A4A /* SDImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCache.m; sourceTree = "<group>"; };
+		B549BFF9180BFB3000F01A4A /* SDWebImageCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageCompat.h; sourceTree = "<group>"; };
+		B549BFFA180BFB3000F01A4A /* SDWebImageCompat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageCompat.m; sourceTree = "<group>"; };
+		B549BFFB180BFB3000F01A4A /* SDWebImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageDecoder.h; sourceTree = "<group>"; };
+		B549BFFC180BFB3000F01A4A /* SDWebImageDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDecoder.m; sourceTree = "<group>"; };
+		B549BFFD180BFB3000F01A4A /* SDWebImageDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageDownloader.h; sourceTree = "<group>"; };
+		B549BFFE180BFB3000F01A4A /* SDWebImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloader.m; sourceTree = "<group>"; };
+		B549BFFF180BFB3000F01A4A /* SDWebImageDownloaderOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageDownloaderOperation.h; sourceTree = "<group>"; };
+		B549C000180BFB3000F01A4A /* SDWebImageDownloaderOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloaderOperation.m; sourceTree = "<group>"; };
+		B549C001180BFB3000F01A4A /* SDWebImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageManager.h; sourceTree = "<group>"; };
+		B549C002180BFB3000F01A4A /* SDWebImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageManager.m; sourceTree = "<group>"; };
+		B549C003180BFB3000F01A4A /* SDWebImageOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageOperation.h; sourceTree = "<group>"; };
+		B549C004180BFB3000F01A4A /* SDWebImagePrefetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImagePrefetcher.h; sourceTree = "<group>"; };
+		B549C005180BFB3000F01A4A /* SDWebImagePrefetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImagePrefetcher.m; sourceTree = "<group>"; };
+		B549C006180BFB3000F01A4A /* UIButton+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+WebCache.h"; sourceTree = "<group>"; };
+		B549C007180BFB3000F01A4A /* UIButton+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+WebCache.m"; sourceTree = "<group>"; };
+		B549C008180BFB3000F01A4A /* UIImage+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+GIF.h"; sourceTree = "<group>"; };
+		B549C009180BFB3000F01A4A /* UIImage+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIF.m"; sourceTree = "<group>"; };
+		B549C00A180BFB3000F01A4A /* UIImage+MultiFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MultiFormat.h"; sourceTree = "<group>"; };
+		B549C00B180BFB3000F01A4A /* UIImage+MultiFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MultiFormat.m"; sourceTree = "<group>"; };
+		B549C00C180BFB3000F01A4A /* UIImage+WebP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+WebP.h"; sourceTree = "<group>"; };
+		B549C00D180BFB3000F01A4A /* UIImage+WebP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+WebP.m"; sourceTree = "<group>"; };
+		B549C00E180BFB3000F01A4A /* UIImageView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+WebCache.h"; sourceTree = "<group>"; };
+		B549C00F180BFB3000F01A4A /* UIImageView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+WebCache.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +116,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B549BFF1180BF3EA00F01A4A /* ImageIO.framework in Frameworks */,
 				B549BFAE180BD1D700F01A4A /* CoreGraphics.framework in Frameworks */,
 				B549BFB0180BD1D700F01A4A /* UIKit.framework in Frameworks */,
 				B549BFAC180BD1D700F01A4A /* Foundation.framework in Frameworks */,
@@ -109,6 +158,7 @@
 		B549BFAA180BD1D700F01A4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B549BFF0180BF3EA00F01A4A /* ImageIO.framework */,
 				B549BFAB180BD1D700F01A4A /* Foundation.framework */,
 				B549BFAD180BD1D700F01A4A /* CoreGraphics.framework */,
 				B549BFAF180BD1D700F01A4A /* UIKit.framework */,
@@ -120,18 +170,21 @@
 		B549BFB1180BD1D700F01A4A /* BatchBuy */ = {
 			isa = PBXGroup;
 			children = (
+				B549BFF2180BFB3000F01A4A /* SDWebImage */,
 				B549BFE6180BD25000F01A4A /* Api.h */,
 				B549BFE7180BD25000F01A4A /* Api.m */,
 				B549BFBA180BD1D700F01A4A /* AppDelegate.h */,
 				B549BFBB180BD1D700F01A4A /* AppDelegate.m */,
 				B549BFBD180BD1D700F01A4A /* Main_iPhone.storyboard */,
 				B549BFC0180BD1D700F01A4A /* Main_iPad.storyboard */,
-				B549BFC3180BD1D700F01A4A /* FirstViewController.h */,
-				B549BFC4180BD1D700F01A4A /* FirstViewController.m */,
-				B549BFC6180BD1D700F01A4A /* SecondViewController.h */,
-				B549BFC7180BD1D700F01A4A /* SecondViewController.m */,
+				B549BFC3180BD1D700F01A4A /* MyOrdersController.h */,
+				B549BFC4180BD1D700F01A4A /* MyOrdersController.m */,
+				B549BFC6180BD1D700F01A4A /* AllOrdersController.h */,
+				B549BFC7180BD1D700F01A4A /* AllOrdersController.m */,
 				B549BFC9180BD1D700F01A4A /* Images.xcassets */,
 				B549BFB2180BD1D700F01A4A /* Supporting Files */,
+				B549BFE9180BE81100F01A4A /* ProductTableViewCell.h */,
+				B549BFEA180BE81100F01A4A /* ProductTableViewCell.m */,
 			);
 			path = BatchBuy;
 			sourceTree = "<group>";
@@ -163,6 +216,42 @@
 				B549BFD9180BD1D700F01A4A /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B549BFF2180BFB3000F01A4A /* SDWebImage */ = {
+			isa = PBXGroup;
+			children = (
+				B549BFF3180BFB3000F01A4A /* MKAnnotationView+WebCache.h */,
+				B549BFF4180BFB3000F01A4A /* MKAnnotationView+WebCache.m */,
+				B549BFF5180BFB3000F01A4A /* NSData+GIF.h */,
+				B549BFF6180BFB3000F01A4A /* NSData+GIF.m */,
+				B549BFF7180BFB3000F01A4A /* SDImageCache.h */,
+				B549BFF8180BFB3000F01A4A /* SDImageCache.m */,
+				B549BFF9180BFB3000F01A4A /* SDWebImageCompat.h */,
+				B549BFFA180BFB3000F01A4A /* SDWebImageCompat.m */,
+				B549BFFB180BFB3000F01A4A /* SDWebImageDecoder.h */,
+				B549BFFC180BFB3000F01A4A /* SDWebImageDecoder.m */,
+				B549BFFD180BFB3000F01A4A /* SDWebImageDownloader.h */,
+				B549BFFE180BFB3000F01A4A /* SDWebImageDownloader.m */,
+				B549BFFF180BFB3000F01A4A /* SDWebImageDownloaderOperation.h */,
+				B549C000180BFB3000F01A4A /* SDWebImageDownloaderOperation.m */,
+				B549C001180BFB3000F01A4A /* SDWebImageManager.h */,
+				B549C002180BFB3000F01A4A /* SDWebImageManager.m */,
+				B549C003180BFB3000F01A4A /* SDWebImageOperation.h */,
+				B549C004180BFB3000F01A4A /* SDWebImagePrefetcher.h */,
+				B549C005180BFB3000F01A4A /* SDWebImagePrefetcher.m */,
+				B549C006180BFB3000F01A4A /* UIButton+WebCache.h */,
+				B549C007180BFB3000F01A4A /* UIButton+WebCache.m */,
+				B549C008180BFB3000F01A4A /* UIImage+GIF.h */,
+				B549C009180BFB3000F01A4A /* UIImage+GIF.m */,
+				B549C00A180BFB3000F01A4A /* UIImage+MultiFormat.h */,
+				B549C00B180BFB3000F01A4A /* UIImage+MultiFormat.m */,
+				B549C00C180BFB3000F01A4A /* UIImage+WebP.h */,
+				B549C00D180BFB3000F01A4A /* UIImage+WebP.m */,
+				B549C00E180BFB3000F01A4A /* UIImageView+WebCache.h */,
+				B549C00F180BFB3000F01A4A /* UIImageView+WebCache.m */,
+			);
+			path = SDWebImage;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,11 +352,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B549BFC8180BD1D700F01A4A /* SecondViewController.m in Sources */,
+				B549BFC8180BD1D700F01A4A /* AllOrdersController.m in Sources */,
+				B549C017180BFB3000F01A4A /* SDWebImageManager.m in Sources */,
+				B549C01D180BFB3000F01A4A /* UIImageView+WebCache.m in Sources */,
+				B549C012180BFB3000F01A4A /* SDImageCache.m in Sources */,
+				B549C016180BFB3000F01A4A /* SDWebImageDownloaderOperation.m in Sources */,
 				B549BFE8180BD25000F01A4A /* Api.m in Sources */,
+				B549C019180BFB3000F01A4A /* UIButton+WebCache.m in Sources */,
 				B549BFBC180BD1D700F01A4A /* AppDelegate.m in Sources */,
-				B549BFC5180BD1D700F01A4A /* FirstViewController.m in Sources */,
+				B549C018180BFB3000F01A4A /* SDWebImagePrefetcher.m in Sources */,
+				B549C015180BFB3000F01A4A /* SDWebImageDownloader.m in Sources */,
+				B549C011180BFB3000F01A4A /* NSData+GIF.m in Sources */,
+				B549C01C180BFB3000F01A4A /* UIImage+WebP.m in Sources */,
+				B549C014180BFB3000F01A4A /* SDWebImageDecoder.m in Sources */,
+				B549BFEB180BE81100F01A4A /* ProductTableViewCell.m in Sources */,
+				B549C010180BFB3000F01A4A /* MKAnnotationView+WebCache.m in Sources */,
+				B549C013180BFB3000F01A4A /* SDWebImageCompat.m in Sources */,
+				B549BFC5180BD1D700F01A4A /* MyOrdersController.m in Sources */,
 				B549BFB8180BD1D700F01A4A /* main.m in Sources */,
+				B549C01B180BFB3000F01A4A /* UIImage+MultiFormat.m in Sources */,
+				B549C01A180BFB3000F01A4A /* UIImage+GIF.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,9 +508,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/sunfmin/gopkg/src/github.com/sunfmin/batchbuy/ios/BatchBuy/BatchBuy,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BatchBuy/BatchBuy-Prefix.pch";
 				INFOPLIST_FILE = "BatchBuy/BatchBuy-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/sunfmin/gopkg/src/github.com/sunfmin/batchbuy/ios/BatchBuy/BatchBuy,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -417,9 +529,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/sunfmin/gopkg/src/github.com/sunfmin/batchbuy/ios/BatchBuy/BatchBuy,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BatchBuy/BatchBuy-Prefix.pch";
 				INFOPLIST_FILE = "BatchBuy/BatchBuy-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/sunfmin/gopkg/src/github.com/sunfmin/batchbuy/ios/BatchBuy/BatchBuy,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

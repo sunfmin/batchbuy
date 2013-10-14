@@ -6,13 +6,13 @@
 //  Copyright (c) 2013 HyperMusk. All rights reserved.
 //
 
-#import "SecondViewController.h"
+#import "AllOrdersController.h"
 
-@interface SecondViewController ()
+@interface AllOrdersController ()
 
 @end
 
-@implementation SecondViewController
+@implementation AllOrdersController
 
 - (void)viewDidLoad
 {
