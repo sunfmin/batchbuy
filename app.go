@@ -18,7 +18,7 @@ import (
 
 type Form map[string][]string
 
-var controller = services.Controller{}
+var controller = services.ServiceImpl{}
 var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 	"newRow": func(index int) bool {
 		return (index != 0 && index%3 == 0)

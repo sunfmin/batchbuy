@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-type Controller struct{}
+type ServiceImpl struct{}
 
-func (Controller) PutProduct(id string, input api.ProductInput) (product *api.Product, err error) {
+func (ServiceImpl) PutProduct(id string, input api.ProductInput) (product *api.Product, err error) {
 	if input.ValidFrom == "" {
 		input.ValidFrom = "0001-01-01"
 	}
@@ -51,11 +51,11 @@ func StringToTime(str string) (date time.Time, err error) {
 	return
 }
 
-func (Controller) RemoveProduct(id string) (err error) {
+func (ServiceImpl) RemoveProduct(id string) (err error) {
 	return
 }
 
-func (Controller) PutUser(email string, input api.UserInput) (user *api.User, err error) {
+func (ServiceImpl) PutUser(email string, input api.UserInput) (user *api.User, err error) {
 	userModel := model.User{}
 	modelUserInput := model.UserInput{
 		Name:       input.Name,
@@ -72,19 +72,19 @@ func (Controller) PutUser(email string, input api.UserInput) (user *api.User, er
 	return
 }
 
-func (Controller) RemoveUser(email string) (err error) {
+func (ServiceImpl) RemoveUser(email string) (err error) {
 	err = model.RemoveUser(email)
 
 	return
 }
 
-func (Controller) GetAllUsers() (users []*api.User, err error) {
+func (ServiceImpl) GetAllUsers() (users []*api.User, err error) {
 	users, err = model.GetAllUsersInApi()
 
 	return
 }
 
-func (Controller) PutOrder(date string, email string, productId string, count int) (order *api.Order, err error) {
+func (ServiceImpl) PutOrder(date string, email string, productId string, count int) (order *api.Order, err error) {
 	dateD, err := StringToTime(date)
 	if err != nil {
 		return
@@ -101,7 +101,7 @@ func (Controller) PutOrder(date string, email string, productId string, count in
 	return
 }
 
-func (Controller) RemoveOrder(date string, email string, productId string) (err error) {
+func (ServiceImpl) RemoveOrder(date string, email string, productId string) (err error) {
 	dateD, err := StringToTime(date)
 	if err != nil {
 		return
@@ -112,12 +112,12 @@ func (Controller) RemoveOrder(date string, email string, productId string) (err 
 	return
 }
 
-func (Controller) AllProducts() (products []*api.Product, err error) {
+func (ServiceImpl) AllProducts() (products []*api.Product, err error) {
 	products, err = model.AllProductsForApi()
 	return
 }
 
-func (Controller) ProductListOfDate(date string) (products []*api.Product, err error) {
+func (ServiceImpl) ProductListOfDate(date string) (products []*api.Product, err error) {
 	dateT, err := StringToTime(date)
 	if err != nil {
 		return
@@ -127,7 +127,7 @@ func (Controller) ProductListOfDate(date string) (products []*api.Product, err e
 	return
 }
 
-func (Controller) OrderListOfDate(date string) (orders []*api.Order, err error) {
+func (ServiceImpl) OrderListOfDate(date string) (orders []*api.Order, err error) {
 	dateT, err := StringToTime(date)
 	if err != nil {
 		return
