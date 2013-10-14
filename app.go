@@ -7,6 +7,7 @@ import (
 	"github.com/sunfmin/batchbuy/api"
 	"github.com/sunfmin/batchbuy/model"
 	"github.com/sunfmin/batchbuy/services"
+	"github.com/sunfmin/batchbuy/services/apihttpimpl"
 	"go/build"
 	"html/template"
 	"log"
@@ -52,6 +53,8 @@ func init() {
 }
 
 func main() {
+	apihttpimpl.AddToMux("/api", http.DefaultServeMux)
+
 	// handle assets and pages
 	makeHandler("/", handleRootVisist)
 	makeHandler("/favicon.ico", handleFavicon)

@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-type ServiceImpl struct{}
+type ServiceImpl struct {
+}
+
+var DefaultService = ServiceImpl{}
 
 func (ServiceImpl) PutProduct(id string, input api.ProductInput) (product *api.Product, err error) {
 	if input.ValidFrom == "" {
