@@ -19,7 +19,7 @@ import (
 
 type Form map[string][]string
 
-var controller = services.ServiceImpl{}
+var serv = services.ServiceImpl{}
 var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 	"newRow": func(index int) bool {
 		return (index != 0 && index%3 == 0)
@@ -67,12 +67,12 @@ func main() {
 	// makeHandler("/stop_order_today", )
 
 	// handle api service
-	handleProfile(controller)
-	handleProduct(controller)
-	handleOrder(controller)
-	handleNoMoreOrderToday(controller)
-	handleMakeMoreOrderToday(controller)
-	handleIsNoMoreOrderToday(controller)
+	handleProfile(serv)
+	handleProduct(serv)
+	handleOrder(serv)
+	handleNoMoreOrderToday(serv)
+	handleMakeMoreOrderToday(serv)
+	handleIsNoMoreOrderToday(serv)
 
 	s := &http.Server{
 		Addr:           ":8080",
@@ -106,7 +106,7 @@ func profilePage(w http.ResponseWriter, r *http.Request) {
 
 // TODO: refactor three pages handler below: use multiple template files
 func productPage(w http.ResponseWriter, r *http.Request) {
-	products, err := controller.AllProducts()
+	products, err := serv.AllProducts()
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return
@@ -147,22 +147,23 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	today := date.Format(services.TimeFmt)
 
 	pageVar := struct {
 		// OrderedProducts []model.Product
 		Orders             []*api.Order
-		AvaliableProducts  []model.Product
+		AvaliableProducts  []*api.Product
 		Date               string
 		PreviousDay        string
 		NextDay            string
 		IsNoMoreOrderToday bool
 	}{
-		Date:        date.Format(services.TimeFmt),
+		Date:        today,
 		PreviousDay: date.AddDate(0, 0, -1).Format(services.TimeFmt),
 		NextDay:     date.AddDate(0, 0, 1).Format(services.TimeFmt),
 	}
-	pageVar.AvaliableProducts, err = user.AvaliableProducts(date)
-	pageVar.Orders, err = user.OrdersForApi(date)
+	pageVar.AvaliableProducts, err = serv.MyAvaliableProducts(today, user.Email)
+	pageVar.Orders, err = serv.MyOrders(today, user.Email)
 
 	// today := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	pageVar.IsNoMoreOrderToday, err = model.IsNoMoreOrderToday(time.Now())
@@ -200,7 +201,7 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	apiOrders, err := controller.OrderListOfDate(date.Format(services.TimeFmt))
+	apiOrders, err := serv.OrderListOfDate(date.Format(services.TimeFmt))
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return
@@ -279,7 +280,7 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func userListPage(w http.ResponseWriter, r *http.Request) {
-	users, err := controller.GetAllUsers()
+	users, err := serv.GetAllUsers()
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return

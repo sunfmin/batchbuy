@@ -255,6 +255,50 @@
 
 @end
 
+// --- MyAvaliableProductsParams ---
+@interface ServiceMyAvaliableProductsParams : NSObject
+
+@property (nonatomic, strong) NSString * Date;
+@property (nonatomic, strong) NSString * Email;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
+// --- MyAvaliableProductsResults ---
+@interface ServiceMyAvaliableProductsResults : NSObject
+
+@property (nonatomic, strong) NSArray * Products;
+@property (nonatomic, strong) NSError * Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
+// --- MyOrdersParams ---
+@interface ServiceMyOrdersParams : NSObject
+
+@property (nonatomic, strong) NSString * Date;
+@property (nonatomic, strong) NSString * Email;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
+// --- MyOrdersResults ---
+@interface ServiceMyOrdersResults : NSObject
+
+@property (nonatomic, strong) NSArray * Orders;
+@property (nonatomic, strong) NSError * Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
 
 @interface Service : NSObject
 - (NSDictionary*) dictionary;
@@ -275,5 +319,9 @@
 - (ServiceProductListOfDateResults *) ProductListOfDate:(NSString *)date;
 
 - (ServiceOrderListOfDateResults *) OrderListOfDate:(NSString *)date;
+
+- (ServiceMyAvaliableProductsResults *) MyAvaliableProducts:(NSString *)date email:(NSString *)email;
+
+- (ServiceMyOrdersResults *) MyOrders:(NSString *)date email:(NSString *)email;
 @end
 

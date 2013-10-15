@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Profile.h"
 
 @interface MyOrdersController : UITableViewController
+
+@property (nonatomic, strong) Profile *profile;
 
 @end

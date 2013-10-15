@@ -40,6 +40,10 @@
 		B549C01B180BFB3000F01A4A /* UIImage+MultiFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C00B180BFB3000F01A4A /* UIImage+MultiFormat.m */; };
 		B549C01C180BFB3000F01A4A /* UIImage+WebP.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C00D180BFB3000F01A4A /* UIImage+WebP.m */; };
 		B549C01D180BFB3000F01A4A /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C00F180BFB3000F01A4A /* UIImageView+WebCache.m */; };
+		B549C01F180CEFE200F01A4A /* productEmpty.png in Resources */ = {isa = PBXBuildFile; fileRef = B549C01E180CEFE200F01A4A /* productEmpty.png */; };
+		B549C0B0180D124600F01A4A /* Profile.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B549C0AE180D124600F01A4A /* Profile.xcdatamodeld */; };
+		B549C0B3180D180F00F01A4A /* Profile.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C0B2180D180F00F01A4A /* Profile.m */; };
+		B549C0B6180D4CE200F01A4A /* MyProfileController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549C0B5180D4CE200F01A4A /* MyProfileController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +113,12 @@
 		B549C00D180BFB3000F01A4A /* UIImage+WebP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+WebP.m"; sourceTree = "<group>"; };
 		B549C00E180BFB3000F01A4A /* UIImageView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+WebCache.h"; sourceTree = "<group>"; };
 		B549C00F180BFB3000F01A4A /* UIImageView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+WebCache.m"; sourceTree = "<group>"; };
+		B549C01E180CEFE200F01A4A /* productEmpty.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = productEmpty.png; sourceTree = "<group>"; };
+		B549C0AF180D124600F01A4A /* Profile.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Profile.xcdatamodel; sourceTree = "<group>"; };
+		B549C0B1180D180F00F01A4A /* Profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Profile.h; sourceTree = "<group>"; };
+		B549C0B2180D180F00F01A4A /* Profile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Profile.m; sourceTree = "<group>"; };
+		B549C0B4180D4CE200F01A4A /* MyProfileController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyProfileController.h; sourceTree = "<group>"; };
+		B549C0B5180D4CE200F01A4A /* MyProfileController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyProfileController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +180,10 @@
 		B549BFB1180BD1D700F01A4A /* BatchBuy */ = {
 			isa = PBXGroup;
 			children = (
+				B549C0AE180D124600F01A4A /* Profile.xcdatamodeld */,
+				B549C0B1180D180F00F01A4A /* Profile.h */,
+				B549C0B2180D180F00F01A4A /* Profile.m */,
+				B549C01E180CEFE200F01A4A /* productEmpty.png */,
 				B549BFF2180BFB3000F01A4A /* SDWebImage */,
 				B549BFE6180BD25000F01A4A /* Api.h */,
 				B549BFE7180BD25000F01A4A /* Api.m */,
@@ -185,6 +199,8 @@
 				B549BFB2180BD1D700F01A4A /* Supporting Files */,
 				B549BFE9180BE81100F01A4A /* ProductTableViewCell.h */,
 				B549BFEA180BE81100F01A4A /* ProductTableViewCell.m */,
+				B549C0B4180D4CE200F01A4A /* MyProfileController.h */,
+				B549C0B5180D4CE200F01A4A /* MyProfileController.m */,
 			);
 			path = BatchBuy;
 			sourceTree = "<group>";
@@ -330,6 +346,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B549C01F180CEFE200F01A4A /* productEmpty.png in Resources */,
 				B549BFC2180BD1D700F01A4A /* Main_iPad.storyboard in Resources */,
 				B549BFCA180BD1D700F01A4A /* Images.xcassets in Resources */,
 				B549BFBF180BD1D700F01A4A /* Main_iPhone.storyboard in Resources */,
@@ -355,6 +372,7 @@
 				B549BFC8180BD1D700F01A4A /* AllOrdersController.m in Sources */,
 				B549C017180BFB3000F01A4A /* SDWebImageManager.m in Sources */,
 				B549C01D180BFB3000F01A4A /* UIImageView+WebCache.m in Sources */,
+				B549C0B6180D4CE200F01A4A /* MyProfileController.m in Sources */,
 				B549C012180BFB3000F01A4A /* SDImageCache.m in Sources */,
 				B549C016180BFB3000F01A4A /* SDWebImageDownloaderOperation.m in Sources */,
 				B549BFE8180BD25000F01A4A /* Api.m in Sources */,
@@ -363,6 +381,8 @@
 				B549C018180BFB3000F01A4A /* SDWebImagePrefetcher.m in Sources */,
 				B549C015180BFB3000F01A4A /* SDWebImageDownloader.m in Sources */,
 				B549C011180BFB3000F01A4A /* NSData+GIF.m in Sources */,
+				B549C0B3180D180F00F01A4A /* Profile.m in Sources */,
+				B549C0B0180D124600F01A4A /* Profile.xcdatamodeld in Sources */,
 				B549C01C180BFB3000F01A4A /* UIImage+WebP.m in Sources */,
 				B549C014180BFB3000F01A4A /* SDWebImageDecoder.m in Sources */,
 				B549BFEB180BE81100F01A4A /* ProductTableViewCell.m in Sources */,
@@ -616,6 +636,20 @@
 			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		B549C0AE180D124600F01A4A /* Profile.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				B549C0AF180D124600F01A4A /* Profile.xcdatamodel */,
+			);
+			currentVersion = B549C0AF180D124600F01A4A /* Profile.xcdatamodel */;
+			name = Profile.xcdatamodeld;
+			path = ../Profile.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = B549BFA0180BD1D700F01A4A /* Project object */;
 }

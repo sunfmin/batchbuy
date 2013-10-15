@@ -12,7 +12,7 @@ type ServiceImpl struct {
 
 var DefaultService = ServiceImpl{}
 
-func (ServiceImpl) PutProduct(id string, input api.ProductInput) (product *api.Product, err error) {
+func (serv ServiceImpl) PutProduct(id string, input api.ProductInput) (product *api.Product, err error) {
 	if input.ValidFrom == "" {
 		input.ValidFrom = "0001-01-01"
 	}
@@ -54,11 +54,11 @@ func StringToTime(str string) (date time.Time, err error) {
 	return
 }
 
-func (ServiceImpl) RemoveProduct(id string) (err error) {
+func (serv ServiceImpl) RemoveProduct(id string) (err error) {
 	return
 }
 
-func (ServiceImpl) PutUser(email string, input api.UserInput) (user *api.User, err error) {
+func (serv ServiceImpl) PutUser(email string, input api.UserInput) (user *api.User, err error) {
 	userModel := model.User{}
 	modelUserInput := model.UserInput{
 		Name:       input.Name,
@@ -75,19 +75,19 @@ func (ServiceImpl) PutUser(email string, input api.UserInput) (user *api.User, e
 	return
 }
 
-func (ServiceImpl) RemoveUser(email string) (err error) {
+func (serv ServiceImpl) RemoveUser(email string) (err error) {
 	err = model.RemoveUser(email)
 
 	return
 }
 
-func (ServiceImpl) GetAllUsers() (users []*api.User, err error) {
+func (serv ServiceImpl) GetAllUsers() (users []*api.User, err error) {
 	users, err = model.GetAllUsersInApi()
 
 	return
 }
 
-func (ServiceImpl) PutOrder(date string, email string, productId string, count int) (order *api.Order, err error) {
+func (serv ServiceImpl) PutOrder(date string, email string, productId string, count int) (order *api.Order, err error) {
 	dateD, err := StringToTime(date)
 	if err != nil {
 		return
@@ -104,7 +104,7 @@ func (ServiceImpl) PutOrder(date string, email string, productId string, count i
 	return
 }
 
-func (ServiceImpl) RemoveOrder(date string, email string, productId string) (err error) {
+func (serv ServiceImpl) RemoveOrder(date string, email string, productId string) (err error) {
 	dateD, err := StringToTime(date)
 	if err != nil {
 		return
@@ -115,12 +115,31 @@ func (ServiceImpl) RemoveOrder(date string, email string, productId string) (err
 	return
 }
 
-func (ServiceImpl) AllProducts() (products []*api.Product, err error) {
+func (serv ServiceImpl) AllProducts() (products []*api.Product, err error) {
 	products, err = model.AllProductsForApi()
 	return
 }
 
-func (ServiceImpl) ProductListOfDate(date string) (products []*api.Product, err error) {
+func (serv ServiceImpl) MyAvaliableProducts(date string, email string) (products []*api.Product, err error) {
+	u := model.User{Email: email}
+	var prods []model.Product
+	d, err := StringToTime(date)
+	prods, err = u.AvaliableProducts(d)
+	for _, p := range prods {
+		products = append(products, p.ToApi())
+	}
+	return
+}
+
+func (serv ServiceImpl) MyOrders(date string, email string) (orders []*api.Order, err error) {
+	u := model.User{Email: email}
+
+	d, err := StringToTime(date)
+	orders, err = u.OrdersForApi(d)
+	return
+}
+
+func (serv ServiceImpl) ProductListOfDate(date string) (products []*api.Product, err error) {
 	dateT, err := StringToTime(date)
 	if err != nil {
 		return
@@ -130,7 +149,7 @@ func (ServiceImpl) ProductListOfDate(date string) (products []*api.Product, err 
 	return
 }
 
-func (ServiceImpl) OrderListOfDate(date string) (orders []*api.Order, err error) {
+func (serv ServiceImpl) OrderListOfDate(date string) (orders []*api.Order, err error) {
 	dateT, err := StringToTime(date)
 	if err != nil {
 		return

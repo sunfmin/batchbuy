@@ -48,6 +48,8 @@ func AddToMux(prefix string, mux *http.ServeMux) {
 	mux.HandleFunc(prefix+"/Service/RemoveOrder.json", Service_RemoveOrder)
 	mux.HandleFunc(prefix+"/Service/ProductListOfDate.json", Service_ProductListOfDate)
 	mux.HandleFunc(prefix+"/Service/OrderListOfDate.json", Service_OrderListOfDate)
+	mux.HandleFunc(prefix+"/Service/MyAvaliableProducts.json", Service_MyAvaliableProducts)
+	mux.HandleFunc(prefix+"/Service/MyOrders.json", Service_MyOrders)
 	return
 }
 
@@ -444,6 +446,106 @@ func Service_OrderListOfDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result.Orders, result.Err = s.OrderListOfDate(p.Params.Date)
+	if result.Err != nil {
+		result.Err = NewError(result.Err)
+	}
+	err = enc.Encode(result)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+type Service_MyAvaliableProducts_Params struct {
+	Params struct {
+		Date string
+		Email string
+	}
+}
+
+type Service_MyAvaliableProducts_Results struct {
+	Products []*api.Product
+	Err error
+
+}
+
+func Service_MyAvaliableProducts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	var p Service_MyAvaliableProducts_Params
+	if r.Body == nil {
+		panic("no body")
+	}
+	defer r.Body.Close()
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&p)
+	var result Service_MyAvaliableProducts_Results
+	enc := json.NewEncoder(w)
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+
+	s := service
+
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+	result.Products, result.Err = s.MyAvaliableProducts(p.Params.Date, p.Params.Email)
+	if result.Err != nil {
+		result.Err = NewError(result.Err)
+	}
+	err = enc.Encode(result)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+type Service_MyOrders_Params struct {
+	Params struct {
+		Date string
+		Email string
+	}
+}
+
+type Service_MyOrders_Results struct {
+	Orders []*api.Order
+	Err error
+
+}
+
+func Service_MyOrders(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	var p Service_MyOrders_Params
+	if r.Body == nil {
+		panic("no body")
+	}
+	defer r.Body.Close()
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&p)
+	var result Service_MyOrders_Results
+	enc := json.NewEncoder(w)
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+
+	s := service
+
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+	result.Orders, result.Err = s.MyOrders(p.Params.Date, p.Params.Email)
 	if result.Err != nil {
 		result.Err = NewError(result.Err)
 	}

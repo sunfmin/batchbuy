@@ -13,4 +13,7 @@ type Service interface {
 
 	ProductListOfDate(date string) (products []*Product, err error)
 	OrderListOfDate(date string) (orders []*Order, err error)
+
+	MyAvaliableProducts(date string, email string) (products []*Product, err error)
+	MyOrders(date string, email string) (orders []*Order, err error)
 }

@@ -836,6 +836,154 @@ static NSDateFormatter * _dateFormatter;
 
 @end
 
+// --- MyAvaliableProductsParams ---
+@implementation ServiceMyAvaliableProductsParams : NSObject
+
+@synthesize Date;
+@synthesize Email;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+	[self setDate:[dict valueForKey:@"Date"]];
+	[self setEmail:[dict valueForKey:@"Email"]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+	[dict setValue:self.Date forKey:@"Date"];
+	[dict setValue:self.Email forKey:@"Email"];
+
+	return dict;
+}
+
+@end
+
+// --- MyAvaliableProductsResults ---
+@implementation ServiceMyAvaliableProductsResults : NSObject
+
+@synthesize Products;
+@synthesize Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+
+	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
+	NSArray * lProducts = [dict valueForKey:@"Products"];
+	if ([lProducts isKindOfClass:[NSArray class]]) {
+		for (NSDictionary * d in lProducts) {
+			[mProducts addObject: [[Product alloc] initWithDictionary:d]];
+		}
+		[self setProducts:mProducts];
+	}
+	[self setErr:[Api errorWithDictionary:[dict valueForKey:@"Err"]]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+
+	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
+	for (Product * p in Products) {
+		[mProducts addObject:[p dictionary]];
+	}
+	[dict setValue:mProducts forKey:@"Products"];
+	
+	[dict setValue:self.Err forKey:@"Err"];
+
+	return dict;
+}
+
+@end
+
+// --- MyOrdersParams ---
+@implementation ServiceMyOrdersParams : NSObject
+
+@synthesize Date;
+@synthesize Email;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+	[self setDate:[dict valueForKey:@"Date"]];
+	[self setEmail:[dict valueForKey:@"Email"]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+	[dict setValue:self.Date forKey:@"Date"];
+	[dict setValue:self.Email forKey:@"Email"];
+
+	return dict;
+}
+
+@end
+
+// --- MyOrdersResults ---
+@implementation ServiceMyOrdersResults : NSObject
+
+@synthesize Orders;
+@synthesize Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+
+	NSMutableArray * mOrders = [[NSMutableArray alloc] init];
+	NSArray * lOrders = [dict valueForKey:@"Orders"];
+	if ([lOrders isKindOfClass:[NSArray class]]) {
+		for (NSDictionary * d in lOrders) {
+			[mOrders addObject: [[Order alloc] initWithDictionary:d]];
+		}
+		[self setOrders:mOrders];
+	}
+	[self setErr:[Api errorWithDictionary:[dict valueForKey:@"Err"]]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+
+	NSMutableArray * mOrders = [[NSMutableArray alloc] init];
+	for (Order * p in Orders) {
+		[mOrders addObject:[p dictionary]];
+	}
+	[dict setValue:mOrders forKey:@"Orders"];
+	
+	[dict setValue:self.Err forKey:@"Err"];
+
+	return dict;
+}
+
+@end
+
 
 
 @implementation Service : NSObject
@@ -1050,6 +1198,62 @@ static NSDateFormatter * _dateFormatter;
 	
 	Api * _api = [Api get];
 	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/OrderListOfDate.json", [_api BaseURL]]];
+	if([_api Verbose]) {
+		NSLog(@"Requesting URL: %@", url);
+	}
+	NSError *error;
+	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	if(error != nil) {
+		if([_api Verbose]) {
+			NSLog(@"Error: %@", error);
+		}
+		results = [results init];
+		[results setErr:error];
+		return results;
+	}
+	results = [results initWithDictionary: dict];
+	
+	return results;
+}
+
+// --- MyAvaliableProducts ---
+- (ServiceMyAvaliableProductsResults *) MyAvaliableProducts:(NSString *)date email:(NSString *)email {
+	
+	ServiceMyAvaliableProductsResults *results = [ServiceMyAvaliableProductsResults alloc];
+	ServiceMyAvaliableProductsParams *params = [[ServiceMyAvaliableProductsParams alloc] init];
+	[params setDate:date];
+	[params setEmail:email];
+	
+	Api * _api = [Api get];
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyAvaliableProducts.json", [_api BaseURL]]];
+	if([_api Verbose]) {
+		NSLog(@"Requesting URL: %@", url);
+	}
+	NSError *error;
+	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	if(error != nil) {
+		if([_api Verbose]) {
+			NSLog(@"Error: %@", error);
+		}
+		results = [results init];
+		[results setErr:error];
+		return results;
+	}
+	results = [results initWithDictionary: dict];
+	
+	return results;
+}
+
+// --- MyOrders ---
+- (ServiceMyOrdersResults *) MyOrders:(NSString *)date email:(NSString *)email {
+	
+	ServiceMyOrdersResults *results = [ServiceMyOrdersResults alloc];
+	ServiceMyOrdersParams *params = [[ServiceMyOrdersParams alloc] init];
+	[params setDate:date];
+	[params setEmail:email];
+	
+	Api * _api = [Api get];
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyOrders.json", [_api BaseURL]]];
 	if([_api Verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}

@@ -16,6 +16,7 @@
 {
     
     NSArray *allProducts;
+    NSArray *myOrderedProducts;
 }
 @end
 
@@ -27,7 +28,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section == 0) {
-        return 1;
+        return myOrderedProducts.count;
     } else {
         return allProducts.count;
     }
@@ -50,32 +51,50 @@
     
 	ProductTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
 
+    Product *p;
     if (indexPath.section == 0) {
-        
+        Order *o = [myOrderedProducts objectAtIndex:indexPath.row];
+        p = o.Product;
+        cell.orderCount.text = [NSString stringWithFormat:@"%ld", (long)[o.Count integerValue]];
+        cell.orderCountValue = [o.Count integerValue];
     } else {
-        Product *p = [allProducts objectAtIndex:indexPath.row];
-        cell.productTitle.text = p.Name;
+        p = [allProducts objectAtIndex:indexPath.row];
         cell.orderCount.text = @"";
-        [cell.imageView setImageWithURL:[NSURL URLWithString:p.PhotoLink]];
-        
     }
+    cell.productTitle.text = p.Name;
+    [cell.imageView setImageWithURL:[NSURL URLWithString:p.PhotoLink] placeholderImage:[UIImage imageNamed:@"productEmpty.png"]];
 	return cell;
 }
 
-
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
+- (void)viewWillAppear:(BOOL)animated {
+    NSString *date = @"2013-10-15";
     
     Service *s = [Service alloc];
-    ServiceProductListOfDateResults *r = [s ProductListOfDate:@"2013-10-14"];
-
+    ServiceMyAvaliableProductsResults *r = [s MyAvaliableProducts:date email:self.profile.email];
+    
     if (r.Err != nil) {
         NSLog(@"%@", r.Err);
         return;
     }
     allProducts = r.Products;
+    
+    ServiceMyOrdersResults *r2 = [s MyOrders:date email:self.profile.email];
+    
+    if (r2.Err != nil) {
+        NSLog(@"%@", r.Err);
+        return;
+    }
+    myOrderedProducts = r2.Orders;
+    
+    [self.tableView reloadData];
+    
+
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
 }
 
 - (void)didReceiveMemoryWarning
