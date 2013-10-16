@@ -10,8 +10,8 @@ $GOROOT/bin/go install .
 
 target="batchbuy"
 echo 'kill running process'
-sudo killall $target;
+killall $target;
 
 cd $GOPATH;
 echo 'run in backgroud'
-sudo nohup $GOPATH/bin/$target >> /home/app/batchbuy.log 2>&1 &
+nohup $GOPATH/bin/$target >> /home/app/batchbuy.log 2>&1 &
