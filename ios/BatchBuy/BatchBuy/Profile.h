@@ -17,4 +17,5 @@
 
 +(Profile*) loadProfile:(NSManagedObjectContext*)context;
 +(void) saveProfile:(NSManagedObjectContext*)context name:(NSString*)name email:(NSString*)email;
++ (NSDateFormatter *) dateFormatter;
 @end

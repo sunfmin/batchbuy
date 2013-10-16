@@ -4,7 +4,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <scenes>
-        <!--My Orders Controller-->
+        <!--My Orders Controller - Title-->
         <scene sceneID="W3I-pn-N6e">
             <objects>
                 <viewController id="CZ4-MO-1fc" customClass="MyOrdersController" sceneMemberID="viewController">
@@ -14,7 +14,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" rowHeight="122" id="ZlW-CX-M51" customClass="ProductTableViewCell">
-                                <rect key="frame" x="0.0" y="22" width="320" height="122"/>
+                                <rect key="frame" x="0.0" y="86" width="320" height="122"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ZlW-CX-M51" id="Ug1-Nj-rfM">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="121"/>
@@ -71,44 +71,25 @@
                             </tableViewCell>
                         </prototypes>
                     </tableView>
-                    <navigationItem key="navigationItem" id="U5B-bk-lWW"/>
+                    <navigationItem key="navigationItem" title="Title" id="o94-hJ-rDa">
+                        <barButtonItem key="leftBarButtonItem" title="上一天" id="nz2-LQ-lFe">
+                            <connections>
+                                <action selector="previousDay:" destination="CZ4-MO-1fc" id="ZMr-lZ-vjF"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="下一天" id="FcE-Ns-X7Y">
+                            <connections>
+                                <action selector="nextDay:" destination="CZ4-MO-1fc" id="7KO-rv-viN"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="navItem" destination="o94-hJ-rDa" id="66g-BI-6jJ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Qh2-T1-AhA" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1179" y="-216"/>
-        </scene>
-        <!--All Orders Controller - 全员订单列表-->
-        <scene sceneID="ot8-2e-RuS">
-            <objects>
-                <viewController id="QUy-BD-bpt" customClass="AllOrdersController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="g8b-Ao-gZm"/>
-                        <viewControllerLayoutGuide type="bottom" id="RZF-0E-2FD"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="gMD-aP-Fq6">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" text="Second View" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="29h-N2-YGT">
-                                <rect key="frame" x="20" y="158" width="280" height="42"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                                <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="36"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <textView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" bouncesZoom="NO" editable="NO" text="Loaded by the second view controller — an instance of SecondViewController — specified in the app delegate." textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="DcM-Fx-MKR">
-                                <rect key="frame" x="20" y="240" width="280" height="88"/>
-                                <fontDescription key="fontDescription" type="system" size="system"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="全员订单列表" image="first" id="Z7h-1E-pvt"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3qq-4t-Ow8" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="653" y="498"/>
         </scene>
         <!--My Profile Controller - 个人信息-->
         <scene sceneID="hs9-5e-JgO">
@@ -156,8 +137,8 @@
                                     <action selector="saveProfile:" destination="roq-4W-lFh" eventType="touchUpInside" id="DsD-8S-ylI"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7Q-W8-6kQ">
-                                <rect key="frame" x="45" y="57" width="255" height="20"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7Q-W8-6kQ">
+                                <rect key="frame" x="45" y="57" width="255" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <accessibility key="accessibilityConfiguration" label=""/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -167,6 +148,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="V7Q-W8-6kQ" firstAttribute="top" secondItem="PTN-qj-V8f" secondAttribute="bottom" constant="37" id="8GH-mB-J7G"/>
                             <constraint firstItem="V7Q-W8-6kQ" firstAttribute="leading" secondItem="DPA-A2-kSv" secondAttribute="leading" constant="45" id="hhg-c8-9YH"/>
                             <constraint firstAttribute="trailing" secondItem="V7Q-W8-6kQ" secondAttribute="trailing" constant="20" symbolic="YES" id="wwt-ce-js1"/>
                         </constraints>
@@ -195,18 +177,17 @@
                     </tabBar>
                     <connections>
                         <segue destination="JnV-zQ-Rwd" kind="relationship" relationship="viewControllers" id="SUk-Ux-ee1"/>
-                        <segue destination="QUy-BD-bpt" kind="relationship" relationship="viewControllers" id="M8t-EP-wfW"/>
                         <segue destination="roq-4W-lFh" kind="relationship" relationship="viewControllers" id="B5D-eA-EuD"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FNP-y4-bzi" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="132" y="180"/>
+            <point key="canvasLocation" x="-155" y="14"/>
         </scene>
         <!--Navigation Controller - 我的订单-->
         <scene sceneID="Onc-Hp-DEN">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="JnV-zQ-Rwd" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="JnV-zQ-Rwd" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="我的订单" image="first" id="u1e-5L-l1D"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="aaS-8s-90L">
@@ -224,7 +205,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="first" width="30" height="30"/>
         <image name="first" width="30" height="30"/>
         <image name="first" width="30" height="30"/>
     </resources>

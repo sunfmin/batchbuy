@@ -16,7 +16,6 @@
 		B549BFBF180BD1D700F01A4A /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B549BFBD180BD1D700F01A4A /* Main_iPhone.storyboard */; };
 		B549BFC2180BD1D700F01A4A /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B549BFC0180BD1D700F01A4A /* Main_iPad.storyboard */; };
 		B549BFC5180BD1D700F01A4A /* MyOrdersController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFC4180BD1D700F01A4A /* MyOrdersController.m */; };
-		B549BFC8180BD1D700F01A4A /* AllOrdersController.m in Sources */ = {isa = PBXBuildFile; fileRef = B549BFC7180BD1D700F01A4A /* AllOrdersController.m */; };
 		B549BFCA180BD1D700F01A4A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B549BFC9180BD1D700F01A4A /* Images.xcassets */; };
 		B549BFD1180BD1D700F01A4A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549BFD0180BD1D700F01A4A /* XCTest.framework */; };
 		B549BFD2180BD1D700F01A4A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B549BFAB180BD1D700F01A4A /* Foundation.framework */; };
@@ -71,8 +70,6 @@
 		B549BFC1180BD1D700F01A4A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		B549BFC3180BD1D700F01A4A /* MyOrdersController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyOrdersController.h; sourceTree = "<group>"; };
 		B549BFC4180BD1D700F01A4A /* MyOrdersController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyOrdersController.m; sourceTree = "<group>"; };
-		B549BFC6180BD1D700F01A4A /* AllOrdersController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AllOrdersController.h; sourceTree = "<group>"; };
-		B549BFC7180BD1D700F01A4A /* AllOrdersController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AllOrdersController.m; sourceTree = "<group>"; };
 		B549BFC9180BD1D700F01A4A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		B549BFCF180BD1D700F01A4A /* BatchBuyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BatchBuyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B549BFD0180BD1D700F01A4A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -193,8 +190,6 @@
 				B549BFC0180BD1D700F01A4A /* Main_iPad.storyboard */,
 				B549BFC3180BD1D700F01A4A /* MyOrdersController.h */,
 				B549BFC4180BD1D700F01A4A /* MyOrdersController.m */,
-				B549BFC6180BD1D700F01A4A /* AllOrdersController.h */,
-				B549BFC7180BD1D700F01A4A /* AllOrdersController.m */,
 				B549BFC9180BD1D700F01A4A /* Images.xcassets */,
 				B549BFB2180BD1D700F01A4A /* Supporting Files */,
 				B549BFE9180BE81100F01A4A /* ProductTableViewCell.h */,
@@ -369,7 +364,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B549BFC8180BD1D700F01A4A /* AllOrdersController.m in Sources */,
 				B549C017180BFB3000F01A4A /* SDWebImageManager.m in Sources */,
 				B549C01D180BFB3000F01A4A /* UIImageView+WebCache.m in Sources */,
 				B549C0B6180D4CE200F01A4A /* MyProfileController.m in Sources */,
@@ -626,6 +620,7 @@
 				B549BFE2180BD1D700F01A4A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B549BFE3180BD1D700F01A4A /* Build configuration list for PBXNativeTarget "BatchBuyTests" */ = {
 			isa = XCConfigurationList;
@@ -634,6 +629,7 @@
 				B549BFE5180BD1D700F01A4A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

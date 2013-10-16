@@ -40,7 +40,7 @@
     //NSManagedObjectContext *context = [self ]
     Profile *profile = [Profile loadProfile:[self managedObjectContext]];
     
-    MyProfileController *profileController = [[self tabController] viewControllers][2];
+    MyProfileController *profileController = [[self tabController] viewControllers][1];
     profileController.managedObjectContext = [self managedObjectContext];
     
     if (profile == nil) {

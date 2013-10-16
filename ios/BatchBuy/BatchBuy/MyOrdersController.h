@@ -12,5 +12,9 @@
 @interface MyOrdersController : UITableViewController
 
 @property (nonatomic, strong) Profile *profile;
+@property (weak, nonatomic) IBOutlet UINavigationItem *navItem;
+
+@property NSDate *currentDate;
+@property NSMutableDictionary *extraInfo;
 
 @end

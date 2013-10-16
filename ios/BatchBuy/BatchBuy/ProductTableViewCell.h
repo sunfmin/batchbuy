@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MyOrdersController.h"
 
 @interface ProductTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -14,5 +15,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *orderCount;
 
 @property NSInteger orderCountValue;
+@property NSString *productId;
+
+@property NSMutableDictionary *extraInfo;
 
 @end

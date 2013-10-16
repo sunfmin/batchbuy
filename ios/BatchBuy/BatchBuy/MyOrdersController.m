@@ -10,6 +10,7 @@
 #import "ProductTableViewCell.h"
 #import "Api.h"
 #import "SDWebImage/UIImageView+WebCache.h"
+#import "Profile.h"
 
 @interface MyOrdersController ()
 
@@ -62,12 +63,20 @@
         cell.orderCount.text = @"";
     }
     cell.productTitle.text = p.Name;
+    cell.productId = p.Id;
     [cell.imageView setImageWithURL:[NSURL URLWithString:p.PhotoLink] placeholderImage:[UIImage imageNamed:@"productEmpty.png"]];
+    cell.extraInfo = self.extraInfo;
 	return cell;
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    NSString *date = @"2013-10-15";
+- (void)refetchData:(NSString *)date {
+    self.navigationItem.title = date;
+    
+    if (self.extraInfo == nil) {
+        self.extraInfo = [NSMutableDictionary dictionaryWithDictionary:@{@"date":date, @"email":self.profile.email}];
+    } else {
+        [self.extraInfo setValue:date forKey:@"date"];
+    }
     
     Service *s = [Service alloc];
     ServiceMyAvaliableProductsResults *r = [s MyAvaliableProducts:date email:self.profile.email];
@@ -87,9 +96,27 @@
     myOrderedProducts = r2.Orders;
     
     [self.tableView reloadData];
-    
-
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (self.currentDate == nil) {
+        self.currentDate = [NSDate date];
+    }
+    [self refetchData:[[Profile dateFormatter] stringFromDate:self.currentDate]];
+}
+
+- (IBAction)nextDay:(id)sender {
+    self.currentDate = [self.currentDate dateByAddingTimeInterval:3600*24];
+    [self refetchData:[[Profile dateFormatter] stringFromDate:self.currentDate]];
+}
+
+- (IBAction)previousDay:(id)sender {
+    self.currentDate = [self.currentDate dateByAddingTimeInterval:-3600*24];
+    [self refetchData:[[Profile dateFormatter] stringFromDate:self.currentDate]];
+    
+}
+
+
 
 - (void)viewDidLoad
 {
