@@ -8,10 +8,10 @@ import (
 	"github.com/sunfmin/batchbuy/model"
 	"github.com/sunfmin/batchbuy/services"
 	"github.com/sunfmin/batchbuy/services/apihttpimpl"
-	"go/build"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -39,7 +39,7 @@ var appTemplate = template.New("appTemplate").Funcs(template.FuncMap{
 var appRoot string
 
 func init() {
-	appRoot = build.Default.GOPATH + "/src/github.com/sunfmin/batchbuy"
+	appRoot = os.Getenv("GOPATH") + "/src/github.com/sunfmin/batchbuy"
 
 	appTemplate.ParseFiles([]string{
 		appRoot + "/view/profile.html",
