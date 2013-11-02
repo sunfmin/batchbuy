@@ -16,4 +16,7 @@ type Service interface {
 
 	MyAvaliableProducts(date string, email string) (products []*Product, err error)
 	MyOrders(date string, email string) (orders []*Order, err error)
+
+	Top3PopularProducts(date string) (products []*Product, err error)
+	MyTop3FavouriteProducts(email string, date string) (products []*Product, err error)
 }

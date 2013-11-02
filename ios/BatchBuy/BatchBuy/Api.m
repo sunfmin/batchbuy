@@ -984,6 +984,151 @@ static NSDateFormatter * _dateFormatter;
 
 @end
 
+// --- Top3PopularProductsParams ---
+@implementation ServiceTop3PopularProductsParams : NSObject
+
+@synthesize Date;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+	[self setDate:[dict valueForKey:@"Date"]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+	[dict setValue:self.Date forKey:@"Date"];
+
+	return dict;
+}
+
+@end
+
+// --- Top3PopularProductsResults ---
+@implementation ServiceTop3PopularProductsResults : NSObject
+
+@synthesize Products;
+@synthesize Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+
+	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
+	NSArray * lProducts = [dict valueForKey:@"Products"];
+	if ([lProducts isKindOfClass:[NSArray class]]) {
+		for (NSDictionary * d in lProducts) {
+			[mProducts addObject: [[Product alloc] initWithDictionary:d]];
+		}
+		[self setProducts:mProducts];
+	}
+	[self setErr:[Api errorWithDictionary:[dict valueForKey:@"Err"]]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+
+	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
+	for (Product * p in Products) {
+		[mProducts addObject:[p dictionary]];
+	}
+	[dict setValue:mProducts forKey:@"Products"];
+	
+	[dict setValue:self.Err forKey:@"Err"];
+
+	return dict;
+}
+
+@end
+
+// --- MyTop3FavouriteProductsParams ---
+@implementation ServiceMyTop3FavouriteProductsParams : NSObject
+
+@synthesize Email;
+@synthesize Date;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+	[self setEmail:[dict valueForKey:@"Email"]];
+	[self setDate:[dict valueForKey:@"Date"]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+	[dict setValue:self.Email forKey:@"Email"];
+	[dict setValue:self.Date forKey:@"Date"];
+
+	return dict;
+}
+
+@end
+
+// --- MyTop3FavouriteProductsResults ---
+@implementation ServiceMyTop3FavouriteProductsResults : NSObject
+
+@synthesize Products;
+@synthesize Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict{
+	self = [super init];
+	if (!self) {
+		return self;
+	}
+	if (![dict isKindOfClass:[NSDictionary class]]) {
+		return self;
+	}
+
+	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
+	NSArray * lProducts = [dict valueForKey:@"Products"];
+	if ([lProducts isKindOfClass:[NSArray class]]) {
+		for (NSDictionary * d in lProducts) {
+			[mProducts addObject: [[Product alloc] initWithDictionary:d]];
+		}
+		[self setProducts:mProducts];
+	}
+	[self setErr:[Api errorWithDictionary:[dict valueForKey:@"Err"]]];
+
+	return self;
+}
+
+- (NSDictionary*) dictionary {
+	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
+
+	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
+	for (Product * p in Products) {
+		[mProducts addObject:[p dictionary]];
+	}
+	[dict setValue:mProducts forKey:@"Products"];
+	
+	[dict setValue:self.Err forKey:@"Err"];
+
+	return dict;
+}
+
+@end
+
 
 
 @implementation Service : NSObject
@@ -1254,6 +1399,61 @@ static NSDateFormatter * _dateFormatter;
 	
 	Api * _api = [Api get];
 	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyOrders.json", [_api BaseURL]]];
+	if([_api Verbose]) {
+		NSLog(@"Requesting URL: %@", url);
+	}
+	NSError *error;
+	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	if(error != nil) {
+		if([_api Verbose]) {
+			NSLog(@"Error: %@", error);
+		}
+		results = [results init];
+		[results setErr:error];
+		return results;
+	}
+	results = [results initWithDictionary: dict];
+	
+	return results;
+}
+
+// --- Top3PopularProducts ---
+- (ServiceTop3PopularProductsResults *) Top3PopularProducts:(NSString *)date {
+	
+	ServiceTop3PopularProductsResults *results = [ServiceTop3PopularProductsResults alloc];
+	ServiceTop3PopularProductsParams *params = [[ServiceTop3PopularProductsParams alloc] init];
+	[params setDate:date];
+	
+	Api * _api = [Api get];
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/Top3PopularProducts.json", [_api BaseURL]]];
+	if([_api Verbose]) {
+		NSLog(@"Requesting URL: %@", url);
+	}
+	NSError *error;
+	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	if(error != nil) {
+		if([_api Verbose]) {
+			NSLog(@"Error: %@", error);
+		}
+		results = [results init];
+		[results setErr:error];
+		return results;
+	}
+	results = [results initWithDictionary: dict];
+	
+	return results;
+}
+
+// --- MyTop3FavouriteProducts ---
+- (ServiceMyTop3FavouriteProductsResults *) MyTop3FavouriteProducts:(NSString *)email date:(NSString *)date {
+	
+	ServiceMyTop3FavouriteProductsResults *results = [ServiceMyTop3FavouriteProductsResults alloc];
+	ServiceMyTop3FavouriteProductsParams *params = [[ServiceMyTop3FavouriteProductsParams alloc] init];
+	[params setEmail:email];
+	[params setDate:date];
+	
+	Api * _api = [Api get];
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyTop3FavouriteProducts.json", [_api BaseURL]]];
 	if([_api Verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}

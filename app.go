@@ -151,21 +151,25 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 
 	pageVar := struct {
 		// OrderedProducts []model.Product
-		Orders             []*api.Order
-		AvaliableProducts  []*api.Product
-		Date               string
-		PreviousDay        string
-		NextDay            string
-		IsNoMoreOrderToday bool
+		Orders                  []*api.Order
+		MyYesterdayOrders       []*api.Order
+		AvaliableProducts       []*api.Product
+		MyTop3FavouriteProducts []*api.Product
+		Top3PopularProducts     []*api.Product
+		Date                    string
+		PreviousDay             string
+		NextDay                 string
+		IsNoMoreOrderToday      bool
 	}{
 		Date:        today,
 		PreviousDay: date.AddDate(0, 0, -1).Format(services.TimeFmt),
 		NextDay:     date.AddDate(0, 0, 1).Format(services.TimeFmt),
 	}
 	pageVar.AvaliableProducts, err = serv.MyAvaliableProducts(today, user.Email)
+	pageVar.Top3PopularProducts, err = serv.Top3PopularProducts(today)
+	pageVar.MyTop3FavouriteProducts, err = serv.MyTop3FavouriteProducts(user.Email, today)
 	pageVar.Orders, err = serv.MyOrders(today, user.Email)
-
-	// today := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	pageVar.MyYesterdayOrders, err = serv.MyOrders(date.AddDate(0, 0, -1).Format(services.TimeFmt), user.Email)
 	pageVar.IsNoMoreOrderToday, err = model.IsNoMoreOrderToday(time.Now())
 	if err != nil {
 		fmt.Printf("IsNoMoreOrderToday: %s\n", err)

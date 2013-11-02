@@ -158,3 +158,39 @@ func (serv ServiceImpl) OrderListOfDate(date string) (orders []*api.Order, err e
 
 	return
 }
+
+func (this ServiceImpl) Top3PopularProducts(date string) (products []*api.Product, err error) {
+	dateT, err := StringToTime(date)
+	if err != nil {
+		return
+	}
+
+	modelProducts, err := model.Top3PopularProducts(dateT)
+	if err != nil {
+		return
+	}
+
+	for _, modelProduct := range modelProducts {
+		products = append(products, modelProduct.ToApi())
+	}
+
+	return
+}
+
+func (this ServiceImpl) MyTop3FavouriteProducts(email string, date string) (products []*api.Product, err error) {
+	dateT, err := StringToTime(date)
+	if err != nil {
+		return
+	}
+
+	modelProducts, err := model.MyTop3FavouriteProducts(email, dateT)
+	if err != nil {
+		return
+	}
+
+	for _, modelProduct := range modelProducts {
+		products = append(products, modelProduct.ToApi())
+	}
+
+	return
+}

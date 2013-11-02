@@ -50,6 +50,8 @@ func AddToMux(prefix string, mux *http.ServeMux) {
 	mux.HandleFunc(prefix+"/Service/OrderListOfDate.json", Service_OrderListOfDate)
 	mux.HandleFunc(prefix+"/Service/MyAvaliableProducts.json", Service_MyAvaliableProducts)
 	mux.HandleFunc(prefix+"/Service/MyOrders.json", Service_MyOrders)
+	mux.HandleFunc(prefix+"/Service/Top3PopularProducts.json", Service_Top3PopularProducts)
+	mux.HandleFunc(prefix+"/Service/MyTop3FavouriteProducts.json", Service_MyTop3FavouriteProducts)
 	return
 }
 
@@ -546,6 +548,105 @@ func Service_MyOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result.Orders, result.Err = s.MyOrders(p.Params.Date, p.Params.Email)
+	if result.Err != nil {
+		result.Err = NewError(result.Err)
+	}
+	err = enc.Encode(result)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+type Service_Top3PopularProducts_Params struct {
+	Params struct {
+		Date string
+	}
+}
+
+type Service_Top3PopularProducts_Results struct {
+	Products []*api.Product
+	Err error
+
+}
+
+func Service_Top3PopularProducts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	var p Service_Top3PopularProducts_Params
+	if r.Body == nil {
+		panic("no body")
+	}
+	defer r.Body.Close()
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&p)
+	var result Service_Top3PopularProducts_Results
+	enc := json.NewEncoder(w)
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+
+	s := service
+
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+	result.Products, result.Err = s.Top3PopularProducts(p.Params.Date)
+	if result.Err != nil {
+		result.Err = NewError(result.Err)
+	}
+	err = enc.Encode(result)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+type Service_MyTop3FavouriteProducts_Params struct {
+	Params struct {
+		Email string
+		Date string
+	}
+}
+
+type Service_MyTop3FavouriteProducts_Results struct {
+	Products []*api.Product
+	Err error
+
+}
+
+func Service_MyTop3FavouriteProducts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+
+	var p Service_MyTop3FavouriteProducts_Params
+	if r.Body == nil {
+		panic("no body")
+	}
+	defer r.Body.Close()
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&p)
+	var result Service_MyTop3FavouriteProducts_Results
+	enc := json.NewEncoder(w)
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+
+	s := service
+
+	if err != nil {
+		result.Err = NewError(err)
+		enc.Encode(result)
+		return
+	}
+	result.Products, result.Err = s.MyTop3FavouriteProducts(p.Params.Email, p.Params.Date)
 	if result.Err != nil {
 		result.Err = NewError(result.Err)
 	}

@@ -85,3 +85,8 @@ func TestAllProdutsForApi(t *testing.T) {
 
 	productCol.RemoveAll(M{})
 }
+
+func TestMyTop3FavouriteProducts(t *testing.T) {
+	products, _ := MyTop3FavouriteProducts("bom.d.van@gmail.com", time.Now())
+	fmt.Printf("=====products=====\n%+v\n=====products=====\n", products)
+}

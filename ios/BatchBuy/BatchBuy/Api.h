@@ -299,6 +299,49 @@
 
 @end
 
+// --- Top3PopularProductsParams ---
+@interface ServiceTop3PopularProductsParams : NSObject
+
+@property (nonatomic, strong) NSString * Date;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
+// --- Top3PopularProductsResults ---
+@interface ServiceTop3PopularProductsResults : NSObject
+
+@property (nonatomic, strong) NSArray * Products;
+@property (nonatomic, strong) NSError * Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
+// --- MyTop3FavouriteProductsParams ---
+@interface ServiceMyTop3FavouriteProductsParams : NSObject
+
+@property (nonatomic, strong) NSString * Email;
+@property (nonatomic, strong) NSString * Date;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
+// --- MyTop3FavouriteProductsResults ---
+@interface ServiceMyTop3FavouriteProductsResults : NSObject
+
+@property (nonatomic, strong) NSArray * Products;
+@property (nonatomic, strong) NSError * Err;
+
+- (id) initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary*) dictionary;
+
+@end
+
 
 @interface Service : NSObject
 - (NSDictionary*) dictionary;
@@ -323,5 +366,9 @@
 - (ServiceMyAvaliableProductsResults *) MyAvaliableProducts:(NSString *)date email:(NSString *)email;
 
 - (ServiceMyOrdersResults *) MyOrders:(NSString *)date email:(NSString *)email;
+
+- (ServiceTop3PopularProductsResults *) Top3PopularProducts:(NSString *)date;
+
+- (ServiceMyTop3FavouriteProductsResults *) MyTop3FavouriteProducts:(NSString *)email date:(NSString *)date;
 @end
 

@@ -13,8 +13,10 @@
     <div style="clear:both; margin-bottom: 5px;"></div>
 </div>
 
+<!-- Ordered Products -->
+{{if .Orders}}
 <div class="row-fluid">
-    <div class="order-panel"><h3>已下订单</h3></div>
+    <div class="order-panel"><h3>只争朝夕</h3></div>
     <ul class="thumbnails">
     {{range $index, $product := .Orders}}
     {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
@@ -35,9 +37,89 @@
     {{end}}
     </ul>
 </div>
+{{end}}
 
+<!-- Ordered Products -->
+{{if .MyYesterdayOrders}}
 <div class="row-fluid">
-    <div class="order-panel"><h3>其它点心</h3></div>
+    <div class="order-panel"><h3>暮然回首</h3></div>
+    <ul class="thumbnails">
+    {{range $index, $product := .MyYesterdayOrders}}
+    {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
+        <li class="span4">
+            <form class="thumbnail">
+            <img src="{{.Product.PhotoLink}}">
+            <div class="caption">
+                <h4>{{.Product.Name}}</h4>
+                <input type="hidden" name="productid" value="{{.Product.Id}}">
+                <div class="input-prepend">
+                    <button class="btn" name="plus" type="button">+</button>
+                    <button class="btn" name="minus" type="button">-</button>
+                    <input class="span3" value="{{.Count}}" id="appendedInputButtons" type="number">
+                </div>
+            </div>
+          </form>
+        </li>
+    {{end}}
+    </ul>
+</div>
+{{end}}
+
+<!-- My Top 3 Popular Products -->
+{{if .MyTop3FavouriteProducts}}
+<div class="row-fluid">
+    <div class="order-panel"><h3>不离不弃</h3></div>
+    <ul class="thumbnails">
+    {{range $index, $product := .MyTop3FavouriteProducts}}
+    {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
+        <li class="span4">
+            <form class="thumbnail">
+            <img src="{{.PhotoLink}}">
+            <div class="caption">
+                <h4>{{.Name}}</h4>
+                <input type="hidden" name="productid" value="{{.Id}}">
+                <div class="input-prepend">
+                    <button class="btn" name="plus" type="button">+</button>
+                    <button class="btn" name="minus" type="button">-</button>
+                    <input class="span3" value="0" id="appendedInputButtons" type="number">
+                </div>
+            </div>
+          </form>
+        </li>
+    {{end}}
+    </ul>
+</div>
+{{end}}
+
+<!-- Top 3 Popular Products -->
+{{if .Top3PopularProducts}}
+<div class="row-fluid">
+    <div class="order-panel"><h3>武林至尊</h3></div>
+    <ul class="thumbnails">
+    {{range $index, $product := .Top3PopularProducts}}
+    {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}
+        <li class="span4">
+            <form class="thumbnail">
+            <img src="{{.PhotoLink}}">
+            <div class="caption">
+                <h4>{{.Name}}</h4>
+                <input type="hidden" name="productid" value="{{.Id}}">
+                <div class="input-prepend">
+                    <button class="btn" name="plus" type="button">+</button>
+                    <button class="btn" name="minus" type="button">-</button>
+                    <input class="span3" value="0" id="appendedInputButtons" type="number">
+                </div>
+            </div>
+          </form>
+        </li>
+    {{end}}
+    </ul>
+</div>
+{{end}}
+
+<!-- Other Products -->
+<div class="row-fluid">
+    <div class="order-panel"><h3>大千世界</h3></div>
     <ul class="thumbnails">
     {{range $index, $product := .AvaliableProducts}}
     {{if newRow $index}}</ul></div><div class="row-fluid"><ul class="thumbnails">{{end}}

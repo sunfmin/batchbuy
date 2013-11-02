@@ -1,11 +1,11 @@
 package model
 
 import (
-	// "strconv"
-	"time"
-	// "strings"
 	"github.com/sunfmin/batchbuy/api"
+	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+	"sort"
+	"time"
 )
 
 var productTN = "products"
@@ -104,7 +104,7 @@ func AllProductsForApi() (products []*api.Product, err error) {
 	return
 }
 
-func (product Product) ToApi() (apiProduct *api.Product) {
+func (product *Product) ToApi() (apiProduct *api.Product) {
 	apiProduct = &api.Product{}
 	apiProduct.Id = product.Id.Hex()
 	apiProduct.Name = product.Name
@@ -112,6 +112,87 @@ func (product Product) ToApi() (apiProduct *api.Product) {
 	apiProduct.Price = product.Price
 	apiProduct.ValidFrom = product.ValidFrom.String()
 	apiProduct.ValidTo = product.ValidTo.String()
+
+	return
+}
+
+func availableCond(date time.Time) bson.M {
+	emptyDate, err := time.Parse("2006-01-02", "0001-01-01")
+	if err != nil {
+		return nil
+	}
+
+	return bson.M{
+		"$or": []M{
+			{"validfrom": emptyDate, "validto": emptyDate},
+			{"validfrom": M{"$lte": date}, "validto": emptyDate},
+			{"validfrom": emptyDate, "validto": M{"$gte": date}},
+			{"validfrom": M{"$lte": date}, "validto": M{"$gte": date}},
+		},
+	}
+}
+
+func Top3PopularProducts(date time.Time) (products []*Product, err error) {
+	return PopularProductsFinder(nil, date)
+}
+
+func MyTop3FavouriteProducts(email string, date time.Time) (products []*Product, err error) {
+	return PopularProductsFinder(bson.M{"userid": email}, date)
+}
+
+type PopularProductInfoDetails struct {
+	Count      int
+	OrderCount int
+}
+
+type PopularProductInfo struct {
+	ProductId string `_id`
+	Value     PopularProductInfoDetails
+}
+
+type PopularProductInfoSorter struct {
+	Infos []*PopularProductInfo
+}
+
+func (this *PopularProductInfoSorter) Len() int {
+	return len(this.Infos)
+}
+
+func (this *PopularProductInfoSorter) Swap(i, j int) {
+	this.Infos[i], this.Infos[j] = this.Infos[j], this.Infos[i]
+}
+
+func (this *PopularProductInfoSorter) Less(i, j int) bool {
+	return this.Infos[i].Value.OrderCount > this.Infos[j].Value.OrderCount
+}
+
+func PopularProductsFinder(query bson.M, date time.Time) (products []*Product, err error) {
+	ppInfos := []*PopularProductInfo{}
+	_, err = orderCol.Find(query).MapReduce(&mgo.MapReduce{
+		Map:    "function() {emit(this.productid, {ordercount: 1, count: this.count}); }",
+		Reduce: "function(key, details) {var reducedVal = {ordercount: 0, count: 0 }; for (var i = 0; i < details.length; i++) {reducedVal.count += details[i].count; reducedVal.ordercount += details[i].ordercount; } return reducedVal; }",
+	}, &ppInfos)
+	if err != nil {
+		return
+	}
+
+	productIds := []bson.ObjectId{}
+	if len(ppInfos) > 3 {
+		sorter := PopularProductInfoSorter{ppInfos}
+		sort.Sort(&sorter)
+		ppInfos = sorter.Infos
+		for _, ppInfo := range ppInfos[:3] {
+			productIds = append(productIds, bson.ObjectIdHex(ppInfo.ProductId))
+		}
+	} else {
+		for _, ppInfo := range ppInfos {
+			productIds = append(productIds, bson.ObjectIdHex(ppInfo.ProductId))
+		}
+	}
+
+	pQuery := availableCond(date)
+	pQuery["_id"] = bson.M{"$in": productIds}
+	err = productCol.Find(pQuery).All(&products)
 
 	return
 }
