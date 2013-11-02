@@ -9,12 +9,12 @@ type Model struct{}
 type M map[string]interface{}
 
 func Init() *mgo.Session {
-	session, err := mgo.Dial("localhost:27017")
-	// session, err := mgo.DialWithInfo(&mgo.DialInfo{
-	// 	Addrs:    []string{"localhost:27017"},
-	// 	Username: "qortexdev",
-	// 	Password: "JT_PX5AQ@m55mNyud@JD",
-	// })
+	// session, err := mgo.Dial("localhost:27017")
+	session, err := mgo.DialWithInfo(&mgo.DialInfo{
+		Addrs:    []string{"localhost:27017"},
+		Username: "qortexdev",
+		Password: "JT_PX5AQ@m55mNyud@JD",
+	})
 	if err != nil {
 		panic(err)
 	}
