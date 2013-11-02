@@ -156,6 +156,7 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 		AvaliableProducts       []*api.Product
 		MyTop3FavouriteProducts []*api.Product
 		Top3PopularProducts     []*api.Product
+		Weekday                 string
 		Date                    string
 		PreviousDay             string
 		NextDay                 string
@@ -174,6 +175,23 @@ func orderPage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("IsNoMoreOrderToday: %s\n", err)
 		return
+	}
+
+	switch date.Weekday() {
+	case 0:
+		pageVar.Weekday = "星期天"
+	case 1:
+		pageVar.Weekday = "星期一"
+	case 2:
+		pageVar.Weekday = "星期二"
+	case 3:
+		pageVar.Weekday = "星期三"
+	case 4:
+		pageVar.Weekday = "星期四"
+	case 5:
+		pageVar.Weekday = "星期五"
+	case 6:
+		pageVar.Weekday = "星期六"
 	}
 
 	err = appTemplate.ExecuteTemplate(w, "order.html", pageVar)
