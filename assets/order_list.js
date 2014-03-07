@@ -1,6 +1,6 @@
 $(document).ready(function() {
     var currentUser = $.cookie('email'),
-        managable = ['venustingting@gmail.com', 'yvonne@theplant.jp'].Rulers.indexOf(currentUser) != -1;
+        managable = ['venustingting@gmail.com', 'yvonne@theplant.jp'].indexOf(currentUser) != -1;
 
     if (!managable) {
         $("#copy-button").remove();
