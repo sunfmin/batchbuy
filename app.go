@@ -3,11 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/schema"
-	"github.com/sunfmin/batchbuy/api"
-	"github.com/sunfmin/batchbuy/model"
-	"github.com/sunfmin/batchbuy/services"
-	"github.com/sunfmin/batchbuy/services/apihttpimpl"
 	"html/template"
 	"log"
 	"net/http"
@@ -15,6 +10,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/schema"
+	"github.com/sunfmin/batchbuy/api"
+	"github.com/sunfmin/batchbuy/model"
+	"github.com/sunfmin/batchbuy/services"
+	"github.com/sunfmin/batchbuy/services/apihttpimpl"
 )
 
 type Form map[string][]string
@@ -73,6 +74,8 @@ func main() {
 	handleNoMoreOrderToday(serv)
 	handleMakeMoreOrderToday(serv)
 	handleIsNoMoreOrderToday(serv)
+
+	println("Starting server on :8080")
 
 	s := &http.Server{
 		Addr:           ":8080",

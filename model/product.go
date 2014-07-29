@@ -169,8 +169,20 @@ func (this *PopularProductInfoSorter) Less(i, j int) bool {
 func PopularProductsFinder(query bson.M, date time.Time) (products []*Product, err error) {
 	ppInfos := []*PopularProductInfo{}
 	_, err = orderCol.Find(query).MapReduce(&mgo.MapReduce{
-		Map:    "function() {emit(this.productid, {ordercount: 1, count: this.count}); }",
-		Reduce: "function(key, details) {var reducedVal = {ordercount: 0, count: 0 }; for (var i = 0; i < details.length; i++) {reducedVal.count += details[i].count; reducedVal.ordercount += details[i].ordercount; } return reducedVal; }",
+		Map:    `
+			function() {
+				emit(this.productid, {ordercount: 1, count: this.count});
+			}`,
+		Reduce: `
+			function(key, details) {
+				var reducedVal = {ordercount: 0, count: 0 };
+				for (var i = 0; i < details.length; i++) {
+					reducedVal.count += details[i].count;
+					reducedVal.ordercount += details[i].ordercount;
+				}
+				return reducedVal;
+			}
+		`,
 	}, &ppInfos)
 	if err != nil {
 		return

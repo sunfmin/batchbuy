@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/hex"
+
 	"labix.org/v2/mgo"
 )
 
@@ -10,15 +11,22 @@ type M map[string]interface{}
 
 func Init() *mgo.Session {
 	// session, err := mgo.Dial("localhost:27017")
+	// session, err := mgo.DialWithInfo(&mgo.DialInfo{
+	// 	Addrs:    []string{"localhost:27017"},
+	// 	Username: "qortexdev",
+	// 	Password: "JT_PX5AQ@m55mNyud@JD",
+	// })
+	println("Connecting to DB")
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:    []string{"localhost:27017"},
-		Username: "qortexdev",
-		Password: "JT_PX5AQ@m55mNyud@JD",
+		Addrs:    []string{"ds053419.mongolab.com:53419/heroku_app27877108"},
+		Username: "lowtea",
+		Password: "e34R@ht8U2DJei",
 	})
 	if err != nil {
 		panic(err)
 	}
 
+	println("Connecting DB Done")
 	return session
 }
 

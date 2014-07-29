@@ -1,2 +1,2 @@
-scp run_on_server_for_batchbuy.sh app@qortex.theplant-dev.com:/home/app
-ssh app@qortex.theplant-dev.com "chmod +x /home/app/run_on_server_for_batchbuy.sh && sudo /home/app/run_on_server_for_batchbuy.sh"
+scp -P222 run_on_cn.sh lowtea@115.238.41.246:/home/lowtea
+ssh -p222 lowtea@115.238.41.246 "chmod +x /home/lowtea/run_on_cn.sh && sudo /home/lowtea/run_on_cn.sh"
