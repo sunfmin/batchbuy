@@ -1,0 +1,33 @@
+{
+  "name": "babiaccounting",
+  "version": "0.0.1",
+  "description": "Babi Accounting",
+  "main": "bootstrap.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "react-router": "^0.7.0",
+    "webpack": "^1.4.0-beta5",
+    "react": "^0.11.1",
+    "jsx-loader": "^0.11.0"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://bitbucket.org/sunfmin/babiaccounting.git"
+  },
+  "keywords": [
+    "ui",
+    "widget"
+  ],
+  "author": {
+    "name": "Felix Sun"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://bitbucket.org/sunfmin/babiaccounting/issues"
+  },
+  "homepage": "https://bitbucket.org/sunfmin/babiaccounting"
+}

@@ -25,7 +25,7 @@ input::-webkit-inner-spin-button {
 	float: right;
 }
 
-#main-panel {
+.main-panel {
 /*	width: 300px;
 */	background: #fff;
 	padding: 20px;

@@ -11,6 +11,9 @@ static NSDateFormatter * _dateFormatter;
 + (Api *) get {
 	if(!_api) {
 		_api = [[Api alloc] init];
+		if ([_api requestTimeoutInterval] == 0) {
+			[_api setRequestTimeoutInterval:10];
+		}
 	}
 	return _api;
 }
@@ -38,7 +41,7 @@ static NSDateFormatter * _dateFormatter;
 	NSDate *date;
 	[[Api dateFormatter] getObjectValue:&date forString:dateString range:nil error:&error];
 	if(error) {
-		if ([[Api get] Verbose]) NSLog(@"Error formatting date %@: %@ (%@)", dateString, [error localizedDescription], error);
+		if ([[Api get] verbose]) NSLog(@"Error formatting date %@: %@ (%@)", dateString, [error localizedDescription], error);
 		return nil;
 	}
 	return date;
@@ -53,29 +56,83 @@ static NSDateFormatter * _dateFormatter;
 	return dateString;
 }
 
-+ (NSDictionary *) request:(NSURL*)url req:(NSDictionary *)req error:(NSError **)error {
-	NSMutableURLRequest *httpRequest = [NSMutableURLRequest requestWithURL:url];
-	[httpRequest setHTTPMethod:@"POST"];
-	[httpRequest setValue:@"application/json;charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+
+
++ (NSDictionary *) request:(NSURL*)url
+		params:(NSDictionary *)params
+		stream:(NSInputStream*)stream
+		error:(NSError **)error
+		completionHandler:(void (^)(NSDictionary *results, NSError *error))completionHandler
+{
+
 	Api * _api = [Api get];
-	NSData *requestBody = [NSJSONSerialization dataWithJSONObject:req options:NSJSONWritingPrettyPrinted error:error];
-	if([_api Verbose]) {
+	NSMutableURLRequest *httpRequest = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:[_api requestTimeoutInterval]];
+
+	[httpRequest setHTTPMethod:@"POST"];
+	NSData *requestBody;
+	if (stream == nil) {
+		[httpRequest setValue:@"application/json;charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+		requestBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:error];
+		[httpRequest setHTTPBody:requestBody];
+	} else {
+		[httpRequest setValue:@"application/octet-stream" forHTTPHeaderField:@"Content-Type"];
+		requestBody = [NSJSONSerialization dataWithJSONObject:params options:0 error:error];
+		NSData *base64RequestBodyData = [requestBody base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+		NSString *paramBase64 = [[NSString alloc ] initWithBytes: [base64RequestBodyData bytes] length:[base64RequestBodyData length] encoding:NSUTF8StringEncoding];
+
+		[httpRequest setValue:paramBase64 forHTTPHeaderField:@"X-HyperMuskStreamParams"];
+		[httpRequest setHTTPBodyStream:stream];
+	}
+	[httpRequest setValue:@"gzip, deflate" forHTTPHeaderField:@"Accept-Encoding"];
+
+	if([_api verbose]) {
 		NSLog(@"Request: %@", [NSString stringWithUTF8String:[requestBody bytes]]);
 	}
-	[httpRequest setHTTPBody:requestBody];
+
 	if(*error != nil) {
 		return nil;
 	}
-	NSURLResponse  *response = nil;
-	NSData *returnData = [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:error];
-	if(*error != nil || returnData == nil) {
-		return nil;
+
+	if (completionHandler == nil) {
+		NSURLResponse  *response = nil;
+		NSData *returnData = [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:error];
+		if(*error != nil || returnData == nil) {
+			return nil;
+		}
+		if([_api verbose]) {
+			NSLog(@"Response: %@", [NSString stringWithUTF8String:[returnData bytes]]);
+		}
+		return [NSJSONSerialization JSONObjectWithData:returnData options:NSJSONReadingAllowFragments error:error];
 	}
-	if([_api Verbose]) {
-		NSLog(@"Response: %@", [NSString stringWithUTF8String:[returnData bytes]]);
-	}
-	return [NSJSONSerialization JSONObjectWithData:returnData options:NSJSONReadingAllowFragments error:error];
+
+	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+	[NSURLConnection sendAsynchronousRequest:httpRequest
+				queue:queue
+				completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+					NSError *blockError = nil;
+					if([_api verbose]) {
+						NSLog(@"Response: %@", [NSString stringWithUTF8String:[data bytes]]);
+					}
+
+					NSDictionary *results = nil;
+
+					if (connectionError) {
+					    NSLog(@"Connection Error: %@", connectionError);
+					    blockError = connectionError;
+					} else if (data) {
+					    results = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&blockError];
+					    if (blockError) NSLog(@"Error decoding JSON: %@", blockError);
+					}
+
+					dispatch_async(dispatch_get_main_queue(), ^{
+					    completionHandler(results, blockError);
+					});
+				}];
+	return nil;
+
 }
+
+
 
 + (NSError *)errorWithDictionary:(NSDictionary *)dict {
 	if (![dict isKindOfClass:[NSDictionary class]]) {
@@ -111,13 +168,6 @@ static NSDateFormatter * _dateFormatter;
 // --- Product ---
 @implementation Product
 
-@synthesize Id;
-@synthesize Name;
-@synthesize PhotoLink;
-@synthesize Price;
-@synthesize ValidFrom;
-@synthesize ValidTo;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -136,14 +186,26 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Id forKey:@"Id"];
-	[dict setValue:self.Name forKey:@"Name"];
-	[dict setValue:self.PhotoLink forKey:@"PhotoLink"];
-	[dict setValue:self.Price forKey:@"Price"];
-	[dict setValue:self.ValidFrom forKey:@"ValidFrom"];
-	[dict setValue:self.ValidTo forKey:@"ValidTo"];
+	[dict setValue:self.id forKey:@"Id"];
+	[dict setValue:self.name forKey:@"Name"];
+	[dict setValue:self.photoLink forKey:@"PhotoLink"];
+	[dict setValue:self.price forKey:@"Price"];
+	[dict setValue:self.validFrom forKey:@"ValidFrom"];
+	[dict setValue:self.validTo forKey:@"ValidTo"];
 
 	return dict;
 }
@@ -152,10 +214,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- User ---
 @implementation User
-
-@synthesize Name;
-@synthesize Email;
-@synthesize AvatarLink;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -172,11 +230,23 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Name forKey:@"Name"];
-	[dict setValue:self.Email forKey:@"Email"];
-	[dict setValue:self.AvatarLink forKey:@"AvatarLink"];
+	[dict setValue:self.name forKey:@"Name"];
+	[dict setValue:self.email forKey:@"Email"];
+	[dict setValue:self.avatarLink forKey:@"AvatarLink"];
 
 	return dict;
 }
@@ -185,12 +255,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- ProductInput ---
 @implementation ProductInput
-
-@synthesize Name;
-@synthesize Price;
-@synthesize PhotoLink;
-@synthesize ValidFrom;
-@synthesize ValidTo;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -209,13 +273,25 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Name forKey:@"Name"];
-	[dict setValue:self.Price forKey:@"Price"];
-	[dict setValue:self.PhotoLink forKey:@"PhotoLink"];
-	[dict setValue:self.ValidFrom forKey:@"ValidFrom"];
-	[dict setValue:self.ValidTo forKey:@"ValidTo"];
+	[dict setValue:self.name forKey:@"Name"];
+	[dict setValue:self.price forKey:@"Price"];
+	[dict setValue:self.photoLink forKey:@"PhotoLink"];
+	[dict setValue:self.validFrom forKey:@"ValidFrom"];
+	[dict setValue:self.validTo forKey:@"ValidTo"];
 
 	return dict;
 }
@@ -224,10 +300,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- UserInput ---
 @implementation UserInput
-
-@synthesize Name;
-@synthesize Email;
-@synthesize AvatarLink;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -244,11 +316,23 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Name forKey:@"Name"];
-	[dict setValue:self.Email forKey:@"Email"];
-	[dict setValue:self.AvatarLink forKey:@"AvatarLink"];
+	[dict setValue:self.name forKey:@"Name"];
+	[dict setValue:self.email forKey:@"Email"];
+	[dict setValue:self.avatarLink forKey:@"AvatarLink"];
 
 	return dict;
 }
@@ -257,11 +341,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- Order ---
 @implementation Order
-
-@synthesize Date;
-@synthesize Product;
-@synthesize Users;
-@synthesize Count;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -291,19 +370,31 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
-	[dict setValue:[self.Product dictionary] forKey:@"Product"];
+	[dict setValue:self.date forKey:@"Date"];
+	[dict setValue:[self.product dictionary] forKey:@"Product"];
 	
 
 	NSMutableArray * mUsers = [[NSMutableArray alloc] init];
-	for (User * p in Users) {
+	for (User * p in self.users) {
 		[mUsers addObject:[p dictionary]];
 	}
 	[dict setValue:mUsers forKey:@"Users"];
 	
-	[dict setValue:self.Count forKey:@"Count"];
+	[dict setValue:self.count forKey:@"Count"];
 
 	return dict;
 }
@@ -317,9 +408,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- PutProductParams ---
 @implementation ServicePutProductParams : NSObject
-
-@synthesize Id;
-@synthesize Input;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -339,10 +427,22 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Id forKey:@"Id"];
-	[dict setValue:[self.Input dictionary] forKey:@"Input"];
+	[dict setValue:self.id forKey:@"Id"];
+	[dict setValue:[self.input dictionary] forKey:@"Input"];
 	
 
 	return dict;
@@ -352,9 +452,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- PutProductResults ---
 @implementation ServicePutProductResults : NSObject
-
-@synthesize Product;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -374,11 +471,23 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:[self.Product dictionary] forKey:@"Product"];
+	[dict setValue:[self.product dictionary] forKey:@"Product"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -387,8 +496,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- RemoveProductParams ---
 @implementation ServiceRemoveProductParams : NSObject
-
-@synthesize Id;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -403,9 +510,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Id forKey:@"Id"];
+	[dict setValue:self.id forKey:@"Id"];
 
 	return dict;
 }
@@ -414,8 +533,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- RemoveProductResults ---
 @implementation ServiceRemoveProductResults : NSObject
-
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -430,9 +547,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -441,9 +570,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- PutUserParams ---
 @implementation ServicePutUserParams : NSObject
-
-@synthesize Email;
-@synthesize Input;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -463,10 +589,22 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Email forKey:@"Email"];
-	[dict setValue:[self.Input dictionary] forKey:@"Input"];
+	[dict setValue:self.email forKey:@"Email"];
+	[dict setValue:[self.input dictionary] forKey:@"Input"];
 	
 
 	return dict;
@@ -476,9 +614,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- PutUserResults ---
 @implementation ServicePutUserResults : NSObject
-
-@synthesize User;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -498,11 +633,23 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:[self.User dictionary] forKey:@"User"];
+	[dict setValue:[self.user dictionary] forKey:@"User"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -511,8 +658,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- RemoveUserParams ---
 @implementation ServiceRemoveUserParams : NSObject
-
-@synthesize Email;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -527,9 +672,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Email forKey:@"Email"];
+	[dict setValue:self.email forKey:@"Email"];
 
 	return dict;
 }
@@ -538,8 +695,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- RemoveUserResults ---
 @implementation ServiceRemoveUserResults : NSObject
-
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -554,9 +709,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -565,11 +732,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- PutOrderParams ---
 @implementation ServicePutOrderParams : NSObject
-
-@synthesize Date;
-@synthesize Email;
-@synthesize ProductId;
-@synthesize Count;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -587,12 +749,24 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
-	[dict setValue:self.Email forKey:@"Email"];
-	[dict setValue:self.ProductId forKey:@"ProductId"];
-	[dict setValue:self.Count forKey:@"Count"];
+	[dict setValue:self.date forKey:@"Date"];
+	[dict setValue:self.email forKey:@"Email"];
+	[dict setValue:self.productId forKey:@"ProductId"];
+	[dict setValue:self.count forKey:@"Count"];
 
 	return dict;
 }
@@ -601,9 +775,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- PutOrderResults ---
 @implementation ServicePutOrderResults : NSObject
-
-@synthesize Order;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -623,11 +794,23 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:[self.Order dictionary] forKey:@"Order"];
+	[dict setValue:[self.order dictionary] forKey:@"Order"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -636,10 +819,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- RemoveOrderParams ---
 @implementation ServiceRemoveOrderParams : NSObject
-
-@synthesize Date;
-@synthesize Email;
-@synthesize ProductId;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -656,11 +835,23 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
-	[dict setValue:self.Email forKey:@"Email"];
-	[dict setValue:self.ProductId forKey:@"ProductId"];
+	[dict setValue:self.date forKey:@"Date"];
+	[dict setValue:self.email forKey:@"Email"];
+	[dict setValue:self.productId forKey:@"ProductId"];
 
 	return dict;
 }
@@ -670,8 +861,6 @@ static NSDateFormatter * _dateFormatter;
 // --- RemoveOrderResults ---
 @implementation ServiceRemoveOrderResults : NSObject
 
-@synthesize Err;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -685,9 +874,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -697,8 +898,6 @@ static NSDateFormatter * _dateFormatter;
 // --- ProductListOfDateParams ---
 @implementation ServiceProductListOfDateParams : NSObject
 
-@synthesize Date;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -712,9 +911,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
+	[dict setValue:self.date forKey:@"Date"];
 
 	return dict;
 }
@@ -724,9 +935,6 @@ static NSDateFormatter * _dateFormatter;
 // --- ProductListOfDateResults ---
 @implementation ServiceProductListOfDateResults : NSObject
 
-@synthesize Products;
-@synthesize Err;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -749,16 +957,28 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
 	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
-	for (Product * p in Products) {
+	for (Product * p in self.products) {
 		[mProducts addObject:[p dictionary]];
 	}
 	[dict setValue:mProducts forKey:@"Products"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -768,8 +988,6 @@ static NSDateFormatter * _dateFormatter;
 // --- OrderListOfDateParams ---
 @implementation ServiceOrderListOfDateParams : NSObject
 
-@synthesize Date;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -783,9 +1001,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
+	[dict setValue:self.date forKey:@"Date"];
 
 	return dict;
 }
@@ -795,9 +1025,6 @@ static NSDateFormatter * _dateFormatter;
 // --- OrderListOfDateResults ---
 @implementation ServiceOrderListOfDateResults : NSObject
 
-@synthesize Orders;
-@synthesize Err;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -820,16 +1047,28 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
 	NSMutableArray * mOrders = [[NSMutableArray alloc] init];
-	for (Order * p in Orders) {
+	for (Order * p in self.orders) {
 		[mOrders addObject:[p dictionary]];
 	}
 	[dict setValue:mOrders forKey:@"Orders"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -839,9 +1078,6 @@ static NSDateFormatter * _dateFormatter;
 // --- MyAvaliableProductsParams ---
 @implementation ServiceMyAvaliableProductsParams : NSObject
 
-@synthesize Date;
-@synthesize Email;
-
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
 	if (!self) {
@@ -856,10 +1092,22 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
-	[dict setValue:self.Email forKey:@"Email"];
+	[dict setValue:self.date forKey:@"Date"];
+	[dict setValue:self.email forKey:@"Email"];
 
 	return dict;
 }
@@ -868,9 +1116,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- MyAvaliableProductsResults ---
 @implementation ServiceMyAvaliableProductsResults : NSObject
-
-@synthesize Products;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -894,16 +1139,28 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
 	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
-	for (Product * p in Products) {
+	for (Product * p in self.products) {
 		[mProducts addObject:[p dictionary]];
 	}
 	[dict setValue:mProducts forKey:@"Products"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -912,9 +1169,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- MyOrdersParams ---
 @implementation ServiceMyOrdersParams : NSObject
-
-@synthesize Date;
-@synthesize Email;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -930,10 +1184,22 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
-	[dict setValue:self.Email forKey:@"Email"];
+	[dict setValue:self.date forKey:@"Date"];
+	[dict setValue:self.email forKey:@"Email"];
 
 	return dict;
 }
@@ -942,9 +1208,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- MyOrdersResults ---
 @implementation ServiceMyOrdersResults : NSObject
-
-@synthesize Orders;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -968,16 +1231,28 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
 	NSMutableArray * mOrders = [[NSMutableArray alloc] init];
-	for (Order * p in Orders) {
+	for (Order * p in self.orders) {
 		[mOrders addObject:[p dictionary]];
 	}
 	[dict setValue:mOrders forKey:@"Orders"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -986,8 +1261,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- Top3PopularProductsParams ---
 @implementation ServiceTop3PopularProductsParams : NSObject
-
-@synthesize Date;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -1002,9 +1275,21 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Date forKey:@"Date"];
+	[dict setValue:self.date forKey:@"Date"];
 
 	return dict;
 }
@@ -1013,9 +1298,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- Top3PopularProductsResults ---
 @implementation ServiceTop3PopularProductsResults : NSObject
-
-@synthesize Products;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -1039,16 +1321,28 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
 	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
-	for (Product * p in Products) {
+	for (Product * p in self.products) {
 		[mProducts addObject:[p dictionary]];
 	}
 	[dict setValue:mProducts forKey:@"Products"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -1057,9 +1351,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- MyTop3FavouriteProductsParams ---
 @implementation ServiceMyTop3FavouriteProductsParams : NSObject
-
-@synthesize Email;
-@synthesize Date;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -1075,10 +1366,22 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
-	[dict setValue:self.Email forKey:@"Email"];
-	[dict setValue:self.Date forKey:@"Date"];
+	[dict setValue:self.email forKey:@"Email"];
+	[dict setValue:self.date forKey:@"Date"];
 
 	return dict;
 }
@@ -1087,9 +1390,6 @@ static NSDateFormatter * _dateFormatter;
 
 // --- MyTop3FavouriteProductsResults ---
 @implementation ServiceMyTop3FavouriteProductsResults : NSObject
-
-@synthesize Products;
-@synthesize Err;
 
 - (id) initWithDictionary:(NSDictionary*)dict{
 	self = [super init];
@@ -1113,16 +1413,28 @@ static NSDateFormatter * _dateFormatter;
 	return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSDictionary *dict = [decoder decodeObjectForKey:@"dict"];
+
+    self = [self initWithDictionary:dict];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[self dictionary] forKey:@"dict"];
+}
+
 - (NSDictionary*) dictionary {
 	NSMutableDictionary * dict = [[NSMutableDictionary alloc] init];
 
 	NSMutableArray * mProducts = [[NSMutableArray alloc] init];
-	for (Product * p in Products) {
+	for (Product * p in self.products) {
 		[mProducts addObject:[p dictionary]];
 	}
 	[dict setValue:mProducts forKey:@"Products"];
 	
-	[dict setValue:self.Err forKey:@"Err"];
+	[dict setValue:self.err forKey:@"Err"];
 
 	return dict;
 }
@@ -1139,7 +1451,7 @@ static NSDateFormatter * _dateFormatter;
 
 
 // --- PutProduct ---
-- (ServicePutProductResults *) PutProduct:(NSString *)id input:(ProductInput *)input {
+- (ServicePutProductResults *) putProduct:(NSString *)id input:(ProductInput *)input {
 	
 	ServicePutProductResults *results = [ServicePutProductResults alloc];
 	ServicePutProductParams *params = [[ServicePutProductParams alloc] init];
@@ -1147,14 +1459,17 @@ static NSDateFormatter * _dateFormatter;
 	[params setInput:input];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutProduct.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutProduct.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1166,35 +1481,107 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) putProduct:(NSString *)id input:(ProductInput *)input success:(void (^)(ServicePutProductResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServicePutProductParams *params = [[ServicePutProductParams alloc] init];
+		[params setId:id];
+		[params setInput:input];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutProduct.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServicePutProductResults *results = [ServicePutProductResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- RemoveProduct ---
-- (NSError *) RemoveProduct:(NSString *)id {
+- (NSError *) removeProduct:(NSString *)id {
 	
 	ServiceRemoveProductResults *results = [ServiceRemoveProductResults alloc];
 	ServiceRemoveProductParams *params = [[ServiceRemoveProductParams alloc] init];
 	[params setId:id];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveProduct.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveProduct.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
 		[results setErr:error];
-		return results.Err;
+		return results.err;
 	}
 	results = [results initWithDictionary: dict];
 	
-	return results.Err;
+	return results.err;
+}
+
+- (void) removeProduct:(NSString *)id success:(void (^)(NSError *error))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceRemoveProductParams *params = [[ServiceRemoveProductParams alloc] init];
+		[params setId:id];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveProduct.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceRemoveProductResults *results = [ServiceRemoveProductResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results.err);
+			}
+		}];
+	
 }
 
 // --- PutUser ---
-- (ServicePutUserResults *) PutUser:(NSString *)email input:(UserInput *)input {
+- (ServicePutUserResults *) putUser:(NSString *)email input:(UserInput *)input {
 	
 	ServicePutUserResults *results = [ServicePutUserResults alloc];
 	ServicePutUserParams *params = [[ServicePutUserParams alloc] init];
@@ -1202,14 +1589,17 @@ static NSDateFormatter * _dateFormatter;
 	[params setInput:input];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutUser.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutUser.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1221,35 +1611,107 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) putUser:(NSString *)email input:(UserInput *)input success:(void (^)(ServicePutUserResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServicePutUserParams *params = [[ServicePutUserParams alloc] init];
+		[params setEmail:email];
+		[params setInput:input];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutUser.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServicePutUserResults *results = [ServicePutUserResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- RemoveUser ---
-- (NSError *) RemoveUser:(NSString *)email {
+- (NSError *) removeUser:(NSString *)email {
 	
 	ServiceRemoveUserResults *results = [ServiceRemoveUserResults alloc];
 	ServiceRemoveUserParams *params = [[ServiceRemoveUserParams alloc] init];
 	[params setEmail:email];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveUser.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveUser.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
 		[results setErr:error];
-		return results.Err;
+		return results.err;
 	}
 	results = [results initWithDictionary: dict];
 	
-	return results.Err;
+	return results.err;
+}
+
+- (void) removeUser:(NSString *)email success:(void (^)(NSError *error))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceRemoveUserParams *params = [[ServiceRemoveUserParams alloc] init];
+		[params setEmail:email];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveUser.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceRemoveUserResults *results = [ServiceRemoveUserResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results.err);
+			}
+		}];
+	
 }
 
 // --- PutOrder ---
-- (ServicePutOrderResults *) PutOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId count:(NSNumber *)count {
+- (ServicePutOrderResults *) putOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId count:(NSNumber *)count {
 	
 	ServicePutOrderResults *results = [ServicePutOrderResults alloc];
 	ServicePutOrderParams *params = [[ServicePutOrderParams alloc] init];
@@ -1259,14 +1721,17 @@ static NSDateFormatter * _dateFormatter;
 	[params setCount:count];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutOrder.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutOrder.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1278,8 +1743,45 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) putOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId count:(NSNumber *)count success:(void (^)(ServicePutOrderResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServicePutOrderParams *params = [[ServicePutOrderParams alloc] init];
+		[params setDate:date];
+		[params setEmail:email];
+		[params setProductId:productId];
+		[params setCount:count];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/PutOrder.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServicePutOrderResults *results = [ServicePutOrderResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- RemoveOrder ---
-- (NSError *) RemoveOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId {
+- (NSError *) removeOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId {
 	
 	ServiceRemoveOrderResults *results = [ServiceRemoveOrderResults alloc];
 	ServiceRemoveOrderParams *params = [[ServiceRemoveOrderParams alloc] init];
@@ -1288,41 +1790,83 @@ static NSDateFormatter * _dateFormatter;
 	[params setProductId:productId];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveOrder.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveOrder.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
 		[results setErr:error];
-		return results.Err;
+		return results.err;
 	}
 	results = [results initWithDictionary: dict];
 	
-	return results.Err;
+	return results.err;
+}
+
+- (void) removeOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId success:(void (^)(NSError *error))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceRemoveOrderParams *params = [[ServiceRemoveOrderParams alloc] init];
+		[params setDate:date];
+		[params setEmail:email];
+		[params setProductId:productId];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/RemoveOrder.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceRemoveOrderResults *results = [ServiceRemoveOrderResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results.err);
+			}
+		}];
+	
 }
 
 // --- ProductListOfDate ---
-- (ServiceProductListOfDateResults *) ProductListOfDate:(NSString *)date {
+- (ServiceProductListOfDateResults *) productListOfDate:(NSString *)date {
 	
 	ServiceProductListOfDateResults *results = [ServiceProductListOfDateResults alloc];
 	ServiceProductListOfDateParams *params = [[ServiceProductListOfDateParams alloc] init];
 	[params setDate:date];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/ProductListOfDate.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/ProductListOfDate.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1334,22 +1878,59 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) productListOfDate:(NSString *)date success:(void (^)(ServiceProductListOfDateResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceProductListOfDateParams *params = [[ServiceProductListOfDateParams alloc] init];
+		[params setDate:date];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/ProductListOfDate.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceProductListOfDateResults *results = [ServiceProductListOfDateResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- OrderListOfDate ---
-- (ServiceOrderListOfDateResults *) OrderListOfDate:(NSString *)date {
+- (ServiceOrderListOfDateResults *) orderListOfDate:(NSString *)date {
 	
 	ServiceOrderListOfDateResults *results = [ServiceOrderListOfDateResults alloc];
 	ServiceOrderListOfDateParams *params = [[ServiceOrderListOfDateParams alloc] init];
 	[params setDate:date];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/OrderListOfDate.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/OrderListOfDate.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1361,8 +1942,42 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) orderListOfDate:(NSString *)date success:(void (^)(ServiceOrderListOfDateResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceOrderListOfDateParams *params = [[ServiceOrderListOfDateParams alloc] init];
+		[params setDate:date];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/OrderListOfDate.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceOrderListOfDateResults *results = [ServiceOrderListOfDateResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- MyAvaliableProducts ---
-- (ServiceMyAvaliableProductsResults *) MyAvaliableProducts:(NSString *)date email:(NSString *)email {
+- (ServiceMyAvaliableProductsResults *) myAvaliableProducts:(NSString *)date email:(NSString *)email {
 	
 	ServiceMyAvaliableProductsResults *results = [ServiceMyAvaliableProductsResults alloc];
 	ServiceMyAvaliableProductsParams *params = [[ServiceMyAvaliableProductsParams alloc] init];
@@ -1370,14 +1985,17 @@ static NSDateFormatter * _dateFormatter;
 	[params setEmail:email];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyAvaliableProducts.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyAvaliableProducts.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1389,8 +2007,43 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) myAvaliableProducts:(NSString *)date email:(NSString *)email success:(void (^)(ServiceMyAvaliableProductsResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceMyAvaliableProductsParams *params = [[ServiceMyAvaliableProductsParams alloc] init];
+		[params setDate:date];
+		[params setEmail:email];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyAvaliableProducts.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceMyAvaliableProductsResults *results = [ServiceMyAvaliableProductsResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- MyOrders ---
-- (ServiceMyOrdersResults *) MyOrders:(NSString *)date email:(NSString *)email {
+- (ServiceMyOrdersResults *) myOrders:(NSString *)date email:(NSString *)email {
 	
 	ServiceMyOrdersResults *results = [ServiceMyOrdersResults alloc];
 	ServiceMyOrdersParams *params = [[ServiceMyOrdersParams alloc] init];
@@ -1398,14 +2051,17 @@ static NSDateFormatter * _dateFormatter;
 	[params setEmail:email];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyOrders.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyOrders.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1417,22 +2073,60 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) myOrders:(NSString *)date email:(NSString *)email success:(void (^)(ServiceMyOrdersResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceMyOrdersParams *params = [[ServiceMyOrdersParams alloc] init];
+		[params setDate:date];
+		[params setEmail:email];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyOrders.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceMyOrdersResults *results = [ServiceMyOrdersResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- Top3PopularProducts ---
-- (ServiceTop3PopularProductsResults *) Top3PopularProducts:(NSString *)date {
+- (ServiceTop3PopularProductsResults *) top3PopularProducts:(NSString *)date {
 	
 	ServiceTop3PopularProductsResults *results = [ServiceTop3PopularProductsResults alloc];
 	ServiceTop3PopularProductsParams *params = [[ServiceTop3PopularProductsParams alloc] init];
 	[params setDate:date];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/Top3PopularProducts.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/Top3PopularProducts.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1444,8 +2138,42 @@ static NSDateFormatter * _dateFormatter;
 	return results;
 }
 
+- (void) top3PopularProducts:(NSString *)date success:(void (^)(ServiceTop3PopularProductsResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceTop3PopularProductsParams *params = [[ServiceTop3PopularProductsParams alloc] init];
+		[params setDate:date];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/Top3PopularProducts.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceTop3PopularProductsResults *results = [ServiceTop3PopularProductsResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
+
 // --- MyTop3FavouriteProducts ---
-- (ServiceMyTop3FavouriteProductsResults *) MyTop3FavouriteProducts:(NSString *)email date:(NSString *)date {
+- (ServiceMyTop3FavouriteProductsResults *) myTop3FavouriteProducts:(NSString *)email date:(NSString *)date {
 	
 	ServiceMyTop3FavouriteProductsResults *results = [ServiceMyTop3FavouriteProductsResults alloc];
 	ServiceMyTop3FavouriteProductsParams *params = [[ServiceMyTop3FavouriteProductsParams alloc] init];
@@ -1453,14 +2181,17 @@ static NSDateFormatter * _dateFormatter;
 	[params setDate:date];
 	
 	Api * _api = [Api get];
-	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyTop3FavouriteProducts.json", [_api BaseURL]]];
-	if([_api Verbose]) {
+	NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyTop3FavouriteProducts.json", [_api baseURL]]];
+	if([_api verbose]) {
 		NSLog(@"Requesting URL: %@", url);
 	}
 	NSError *error;
-	NSDictionary * dict = [Api request:url req:[NSDictionary dictionaryWithObjectsAndKeys: [self dictionary], @"This", [params dictionary], @"Params", nil] error:&error];
+	NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+
+	NSDictionary * dict = [Api request:url params:paramsDict stream:nil error:&error completionHandler:nil];
+
 	if(error != nil) {
-		if([_api Verbose]) {
+		if([_api verbose]) {
 			NSLog(@"Error: %@", error);
 		}
 		results = [results init];
@@ -1471,7 +2202,40 @@ static NSDateFormatter * _dateFormatter;
 	
 	return results;
 }
+
+- (void) myTop3FavouriteProducts:(NSString *)email date:(NSString *)date success:(void (^)(ServiceMyTop3FavouriteProductsResults *results))successBlock failure:(void (^)(NSError *error))failureBlock {
+	
+		ServiceMyTop3FavouriteProductsParams *params = [[ServiceMyTop3FavouriteProductsParams alloc] init];
+		[params setEmail:email];
+		[params setDate:date];
+		
+
+		Api * _api = [Api get];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/Service/MyTop3FavouriteProducts.json", [_api baseURL]]];
+		if([_api verbose]) {
+			NSLog(@"Requesting URL: %@", url);
+		}
+		NSDictionary *paramsDict = @{@"This": [self dictionary], @"Params": [params dictionary]};
+		NSError *nilerror = nil;
+
+		[Api request:url params:paramsDict stream:nil error:&nilerror completionHandler:^(NSDictionary *data, NSError *error) {;
+
+			if (error && failureBlock) {
+				if([_api verbose]) {
+					NSLog(@"Error: %@", error);
+				}
+
+				failureBlock(error);
+				return;
+			}
+
+			if (successBlock) {
+				ServiceMyTop3FavouriteProductsResults *results = [ServiceMyTop3FavouriteProductsResults alloc];
+				results = [results initWithDictionary: data];
+				successBlock(results);
+			}
+		}];
+	
+}
 @end
-
-
 

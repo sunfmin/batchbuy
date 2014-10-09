@@ -5,8 +5,9 @@
 
 
 @interface Api : NSObject
-@property (nonatomic, strong) NSString * BaseURL;
-@property (nonatomic, assign) BOOL Verbose;
+@property (nonatomic, strong) NSString * baseURL;
+@property (nonatomic, assign) BOOL verbose;
+@property (nonatomic, assign) NSTimeInterval requestTimeoutInterval;
 + (Api *) get;
 
 @end
@@ -14,14 +15,14 @@
 
 
 // --- Product ---
-@interface Product : NSObject
+@interface Product : NSObject<NSCoding>
 
-@property (nonatomic, strong) NSString * Id;
-@property (nonatomic, strong) NSString * Name;
-@property (nonatomic, strong) NSString * PhotoLink;
-@property (nonatomic, strong) NSNumber * Price;
-@property (nonatomic, strong) NSString * ValidFrom;
-@property (nonatomic, strong) NSString * ValidTo;
+@property (nonatomic, strong) NSString * id;
+@property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) NSString * photoLink;
+@property (nonatomic, strong) NSNumber * price;
+@property (nonatomic, strong) NSString * validFrom;
+@property (nonatomic, strong) NSString * validTo;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -29,11 +30,11 @@
 @end
 
 // --- User ---
-@interface User : NSObject
+@interface User : NSObject<NSCoding>
 
-@property (nonatomic, strong) NSString * Name;
-@property (nonatomic, strong) NSString * Email;
-@property (nonatomic, strong) NSString * AvatarLink;
+@property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) NSString * avatarLink;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -41,13 +42,13 @@
 @end
 
 // --- ProductInput ---
-@interface ProductInput : NSObject
+@interface ProductInput : NSObject<NSCoding>
 
-@property (nonatomic, strong) NSString * Name;
-@property (nonatomic, strong) NSNumber * Price;
-@property (nonatomic, strong) NSString * PhotoLink;
-@property (nonatomic, strong) NSString * ValidFrom;
-@property (nonatomic, strong) NSString * ValidTo;
+@property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) NSNumber * price;
+@property (nonatomic, strong) NSString * photoLink;
+@property (nonatomic, strong) NSString * validFrom;
+@property (nonatomic, strong) NSString * validTo;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -55,11 +56,11 @@
 @end
 
 // --- UserInput ---
-@interface UserInput : NSObject
+@interface UserInput : NSObject<NSCoding>
 
-@property (nonatomic, strong) NSString * Name;
-@property (nonatomic, strong) NSString * Email;
-@property (nonatomic, strong) NSString * AvatarLink;
+@property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) NSString * avatarLink;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -67,12 +68,12 @@
 @end
 
 // --- Order ---
-@interface Order : NSObject
+@interface Order : NSObject<NSCoding>
 
-@property (nonatomic, strong) NSString * Date;
-@property (nonatomic, strong) Product * Product;
-@property (nonatomic, strong) NSArray * Users;
-@property (nonatomic, strong) NSNumber * Count;
+@property (nonatomic, strong) NSString * date;
+@property (nonatomic, strong) Product * product;
+@property (nonatomic, strong) NSArray * users;
+@property (nonatomic, strong) NSNumber * count;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -82,12 +83,11 @@
 
 // === Interfaces ===
 
-
 // --- PutProductParams ---
 @interface ServicePutProductParams : NSObject
 
-@property (nonatomic, strong) NSString * Id;
-@property (nonatomic, strong) ProductInput * Input;
+@property (nonatomic, strong) NSString * id;
+@property (nonatomic, strong) ProductInput * input;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -97,8 +97,8 @@
 // --- PutProductResults ---
 @interface ServicePutProductResults : NSObject
 
-@property (nonatomic, strong) Product * Product;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) Product * product;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -108,7 +108,7 @@
 // --- RemoveProductParams ---
 @interface ServiceRemoveProductParams : NSObject
 
-@property (nonatomic, strong) NSString * Id;
+@property (nonatomic, strong) NSString * id;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -118,7 +118,7 @@
 // --- RemoveProductResults ---
 @interface ServiceRemoveProductResults : NSObject
 
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -128,8 +128,8 @@
 // --- PutUserParams ---
 @interface ServicePutUserParams : NSObject
 
-@property (nonatomic, strong) NSString * Email;
-@property (nonatomic, strong) UserInput * Input;
+@property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) UserInput * input;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -139,8 +139,8 @@
 // --- PutUserResults ---
 @interface ServicePutUserResults : NSObject
 
-@property (nonatomic, strong) User * User;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) User * user;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -150,7 +150,7 @@
 // --- RemoveUserParams ---
 @interface ServiceRemoveUserParams : NSObject
 
-@property (nonatomic, strong) NSString * Email;
+@property (nonatomic, strong) NSString * email;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -160,7 +160,7 @@
 // --- RemoveUserResults ---
 @interface ServiceRemoveUserResults : NSObject
 
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -170,10 +170,10 @@
 // --- PutOrderParams ---
 @interface ServicePutOrderParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
-@property (nonatomic, strong) NSString * Email;
-@property (nonatomic, strong) NSString * ProductId;
-@property (nonatomic, strong) NSNumber * Count;
+@property (nonatomic, strong) NSString * date;
+@property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) NSString * productId;
+@property (nonatomic, strong) NSNumber * count;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -183,8 +183,8 @@
 // --- PutOrderResults ---
 @interface ServicePutOrderResults : NSObject
 
-@property (nonatomic, strong) Order * Order;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) Order * order;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -194,9 +194,9 @@
 // --- RemoveOrderParams ---
 @interface ServiceRemoveOrderParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
-@property (nonatomic, strong) NSString * Email;
-@property (nonatomic, strong) NSString * ProductId;
+@property (nonatomic, strong) NSString * date;
+@property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) NSString * productId;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -206,7 +206,7 @@
 // --- RemoveOrderResults ---
 @interface ServiceRemoveOrderResults : NSObject
 
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -216,7 +216,7 @@
 // --- ProductListOfDateParams ---
 @interface ServiceProductListOfDateParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
+@property (nonatomic, strong) NSString * date;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -226,8 +226,8 @@
 // --- ProductListOfDateResults ---
 @interface ServiceProductListOfDateResults : NSObject
 
-@property (nonatomic, strong) NSArray * Products;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSArray * products;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -237,7 +237,7 @@
 // --- OrderListOfDateParams ---
 @interface ServiceOrderListOfDateParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
+@property (nonatomic, strong) NSString * date;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -247,8 +247,8 @@
 // --- OrderListOfDateResults ---
 @interface ServiceOrderListOfDateResults : NSObject
 
-@property (nonatomic, strong) NSArray * Orders;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSArray * orders;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -258,8 +258,8 @@
 // --- MyAvaliableProductsParams ---
 @interface ServiceMyAvaliableProductsParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
-@property (nonatomic, strong) NSString * Email;
+@property (nonatomic, strong) NSString * date;
+@property (nonatomic, strong) NSString * email;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -269,8 +269,8 @@
 // --- MyAvaliableProductsResults ---
 @interface ServiceMyAvaliableProductsResults : NSObject
 
-@property (nonatomic, strong) NSArray * Products;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSArray * products;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -280,8 +280,8 @@
 // --- MyOrdersParams ---
 @interface ServiceMyOrdersParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
-@property (nonatomic, strong) NSString * Email;
+@property (nonatomic, strong) NSString * date;
+@property (nonatomic, strong) NSString * email;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -291,8 +291,8 @@
 // --- MyOrdersResults ---
 @interface ServiceMyOrdersResults : NSObject
 
-@property (nonatomic, strong) NSArray * Orders;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSArray * orders;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -302,7 +302,7 @@
 // --- Top3PopularProductsParams ---
 @interface ServiceTop3PopularProductsParams : NSObject
 
-@property (nonatomic, strong) NSString * Date;
+@property (nonatomic, strong) NSString * date;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -312,8 +312,8 @@
 // --- Top3PopularProductsResults ---
 @interface ServiceTop3PopularProductsResults : NSObject
 
-@property (nonatomic, strong) NSArray * Products;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSArray * products;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -323,8 +323,8 @@
 // --- MyTop3FavouriteProductsParams ---
 @interface ServiceMyTop3FavouriteProductsParams : NSObject
 
-@property (nonatomic, strong) NSString * Email;
-@property (nonatomic, strong) NSString * Date;
+@property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) NSString * date;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -334,8 +334,8 @@
 // --- MyTop3FavouriteProductsResults ---
 @interface ServiceMyTop3FavouriteProductsResults : NSObject
 
-@property (nonatomic, strong) NSArray * Products;
-@property (nonatomic, strong) NSError * Err;
+@property (nonatomic, strong) NSArray * products;
+@property (nonatomic, strong) NSError * err;
 
 - (id) initWithDictionary:(NSDictionary*)dict;
 - (NSDictionary*) dictionary;
@@ -343,32 +343,42 @@
 @end
 
 
-@interface Service : NSObject
-- (NSDictionary*) dictionary;
+@interface Service : NSObject- (NSDictionary*) dictionary;
 
+- (ServicePutProductResults *) putProduct:(NSString *)id input:(ProductInput *)input;
+- (void) putProduct:(NSString *)id input:(ProductInput *)input success:(void (^)(ServicePutProductResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServicePutProductResults *) PutProduct:(NSString *)id input:(ProductInput *)input;
+- (NSError *) removeProduct:(NSString *)id;
+- (void) removeProduct:(NSString *)id success:(void (^)(NSError *error))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (NSError *) RemoveProduct:(NSString *)id;
+- (ServicePutUserResults *) putUser:(NSString *)email input:(UserInput *)input;
+- (void) putUser:(NSString *)email input:(UserInput *)input success:(void (^)(ServicePutUserResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServicePutUserResults *) PutUser:(NSString *)email input:(UserInput *)input;
+- (NSError *) removeUser:(NSString *)email;
+- (void) removeUser:(NSString *)email success:(void (^)(NSError *error))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (NSError *) RemoveUser:(NSString *)email;
+- (ServicePutOrderResults *) putOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId count:(NSNumber *)count;
+- (void) putOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId count:(NSNumber *)count success:(void (^)(ServicePutOrderResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServicePutOrderResults *) PutOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId count:(NSNumber *)count;
+- (NSError *) removeOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId;
+- (void) removeOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId success:(void (^)(NSError *error))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (NSError *) RemoveOrder:(NSString *)date email:(NSString *)email productId:(NSString *)productId;
+- (ServiceProductListOfDateResults *) productListOfDate:(NSString *)date;
+- (void) productListOfDate:(NSString *)date success:(void (^)(ServiceProductListOfDateResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServiceProductListOfDateResults *) ProductListOfDate:(NSString *)date;
+- (ServiceOrderListOfDateResults *) orderListOfDate:(NSString *)date;
+- (void) orderListOfDate:(NSString *)date success:(void (^)(ServiceOrderListOfDateResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServiceOrderListOfDateResults *) OrderListOfDate:(NSString *)date;
+- (ServiceMyAvaliableProductsResults *) myAvaliableProducts:(NSString *)date email:(NSString *)email;
+- (void) myAvaliableProducts:(NSString *)date email:(NSString *)email success:(void (^)(ServiceMyAvaliableProductsResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServiceMyAvaliableProductsResults *) MyAvaliableProducts:(NSString *)date email:(NSString *)email;
+- (ServiceMyOrdersResults *) myOrders:(NSString *)date email:(NSString *)email;
+- (void) myOrders:(NSString *)date email:(NSString *)email success:(void (^)(ServiceMyOrdersResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServiceMyOrdersResults *) MyOrders:(NSString *)date email:(NSString *)email;
+- (ServiceTop3PopularProductsResults *) top3PopularProducts:(NSString *)date;
+- (void) top3PopularProducts:(NSString *)date success:(void (^)(ServiceTop3PopularProductsResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 
-- (ServiceTop3PopularProductsResults *) Top3PopularProducts:(NSString *)date;
-
-- (ServiceMyTop3FavouriteProductsResults *) MyTop3FavouriteProducts:(NSString *)email date:(NSString *)date;
+- (ServiceMyTop3FavouriteProductsResults *) myTop3FavouriteProducts:(NSString *)email date:(NSString *)date;
+- (void) myTop3FavouriteProducts:(NSString *)email date:(NSString *)date success:(void (^)(ServiceMyTop3FavouriteProductsResults *results))successBlock failure:(void (^)(NSError *error))failureBlock;
 @end
 

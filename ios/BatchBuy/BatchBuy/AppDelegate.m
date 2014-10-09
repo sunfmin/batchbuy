@@ -33,7 +33,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
-    [[Api get] setBaseURL:@"http://localhost:8080/api"];
+    [[Api get] setBaseURL:@"http://lowtea.theplant-dev.com:8080/api"];
     [[Api get] setVerbose:YES];
     
 

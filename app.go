@@ -43,13 +43,7 @@ func init() {
 	appRoot = os.Getenv("GOPATH") + "/src/github.com/sunfmin/batchbuy"
 
 	appTemplate.ParseFiles([]string{
-		appRoot + "/view/profile.html",
-		appRoot + "/view/product.html",
-		appRoot + "/view/order_list.html",
-		appRoot + "/view/order.html",
-		appRoot + "/view/user_list.html",
-		appRoot + "/view/_app_header.html",
-		appRoot + "/view/_app_footer.html",
+		appRoot + "/view/index.html",
 	}...)
 }
 
@@ -57,23 +51,24 @@ func main() {
 	apihttpimpl.AddToMux("/api", http.DefaultServeMux)
 
 	// handle assets and pages
-	makeHandler("/", handleRootVisist)
+	makeHandler("/", serveFile)
 	makeHandler("/favicon.ico", handleFavicon)
 	makeHandler("/assets/", serveFile)
-	makeHandler("/profile.html", profilePage)
-	makeHandler("/product.html", productPage)
-	makeHandler("/order.html", orderPage)
-	makeHandler("/order_list.html", orderListPage)
-	makeHandler("/user_list.html", userListPage)
+	makeHandler("/index.html", serveFile)
+	// makeHandler("/profile.html", profilePage)
+	// makeHandler("/product.html", productPage)
+	// makeHandler("/order.html", orderPage)
+	// makeHandler("/order_list.html", orderListPage)
+	// makeHandler("/user_list.html", userListPage)
 	// makeHandler("/stop_order_today", )
 
 	// handle api service
-	handleProfile(serv)
-	handleProduct(serv)
-	handleOrder(serv)
-	handleNoMoreOrderToday(serv)
-	handleMakeMoreOrderToday(serv)
-	handleIsNoMoreOrderToday(serv)
+	// handleProfile(serv)
+	// handleProduct(serv)
+	// handleOrder(serv)
+	// handleNoMoreOrderToday(serv)
+	// handleMakeMoreOrderToday(serv)
+	// handleIsNoMoreOrderToday(serv)
 
 	println("Starting server on :8080")
 
@@ -95,7 +90,11 @@ func serveFile(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(r.URL.Path, "/assets") {
 		http.ServeFile(w, r, appRoot+"/"+r.URL.Path)
 	} else {
-		http.ServeFile(w, r, appRoot+"/view"+r.URL.Path)
+		p := r.URL.Path
+		if r.URL.Path == "/" {
+			p = "/index.html"
+		}
+		http.ServeFile(w, r, appRoot+"/view"+p)
 	}
 }
 
@@ -461,7 +460,7 @@ func handleOrder(service api.Service) {
 }
 
 func handleRootVisist(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/order.html", http.StatusFound)
+	http.Redirect(w, r, "/index.html", http.StatusFound)
 }
 
 func handleFavicon(w http.ResponseWriter, r *http.Request) {

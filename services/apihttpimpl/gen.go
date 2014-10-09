@@ -5,13 +5,21 @@ package apihttpimpl
 
 import (
 	"time"
+	"io"
+	"strings"
+	"compress/gzip"
 	"encoding/json"
+	"encoding/base64"
 	"github.com/sunfmin/batchbuy/api"
 	"github.com/sunfmin/batchbuy/services"
 	"net/http"
+	"log"
 )
 
 var _ = time.Sunday
+var _ = base64.StdEncoding
+
+const StreamHTTPHeaderFieldName = "X-HyperMuskStreamParams"
 
 type CodeError interface {
 	Code() string
@@ -76,18 +84,50 @@ type Service_PutProduct_Results struct {
 }
 
 func Service_PutProduct(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_PutProduct_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_PutProduct_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -124,18 +164,50 @@ type Service_RemoveProduct_Results struct {
 }
 
 func Service_RemoveProduct(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_RemoveProduct_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_RemoveProduct_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -174,18 +246,50 @@ type Service_PutUser_Results struct {
 }
 
 func Service_PutUser(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_PutUser_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_PutUser_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -222,18 +326,50 @@ type Service_RemoveUser_Results struct {
 }
 
 func Service_RemoveUser(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_RemoveUser_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_RemoveUser_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -274,18 +410,50 @@ type Service_PutOrder_Results struct {
 }
 
 func Service_PutOrder(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_PutOrder_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_PutOrder_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -324,18 +492,50 @@ type Service_RemoveOrder_Results struct {
 }
 
 func Service_RemoveOrder(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_RemoveOrder_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_RemoveOrder_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -373,18 +573,50 @@ type Service_ProductListOfDate_Results struct {
 }
 
 func Service_ProductListOfDate(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_ProductListOfDate_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_ProductListOfDate_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -422,18 +654,50 @@ type Service_OrderListOfDate_Results struct {
 }
 
 func Service_OrderListOfDate(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_OrderListOfDate_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_OrderListOfDate_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -472,18 +736,50 @@ type Service_MyAvaliableProducts_Results struct {
 }
 
 func Service_MyAvaliableProducts(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_MyAvaliableProducts_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_MyAvaliableProducts_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -522,18 +818,50 @@ type Service_MyOrders_Results struct {
 }
 
 func Service_MyOrders(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_MyOrders_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_MyOrders_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -571,18 +899,50 @@ type Service_Top3PopularProducts_Results struct {
 }
 
 func Service_Top3PopularProducts(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_Top3PopularProducts_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_Top3PopularProducts_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -621,18 +981,50 @@ type Service_MyTop3FavouriteProducts_Results struct {
 }
 
 func Service_MyTop3FavouriteProducts(w http.ResponseWriter, r *http.Request) {
+	startAt := time.Now()
+	log.Printf("Started %s \"%s\" for %s at %s\n", r.Method, r.RequestURI, r.RemoteAddr, startAt.String())
+	defer func() {
+		spent := time.Now().Sub(startAt) / time.Millisecond
+		log.Printf("Completed \"%s\" in %d ms\n\n", r.RequestURI, spent)
+	}()
+
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	gzipOk := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+	if gzipOk {
+		w.Header().Set("Content-Encoding", "gzip")
+	}
+
+	var body io.Reader
+
+	jsonpCallback := r.URL.Query().Get("callback")
+	if  jsonpCallback != "" {
+		body = strings.NewReader(r.URL.Query().Get("data"))
+		io.WriteString(w, jsonpCallback + "(")
+		defer io.WriteString(w, ")")
+	} else {
+		if r.Body == nil {
+			panic("no body")
+		}
+		body = r.Body
+	}
+
+	defer r.Body.Close()
 
 	var p Service_MyTop3FavouriteProducts_Params
-	if r.Body == nil {
-		panic("no body")
-	}
-	defer r.Body.Close()
-	dec := json.NewDecoder(r.Body)
+
+	dec := json.NewDecoder(body)
 	err := dec.Decode(&p)
 	var result Service_MyTop3FavouriteProducts_Results
-	enc := json.NewEncoder(w)
+	var mayGzipWriter io.Writer = w
+	if gzipOk {
+		gzipWriter := gzip.NewWriter(w)
+		defer gzipWriter.Close()
+		mayGzipWriter = gzipWriter
+	}
+	enc := json.NewEncoder(mayGzipWriter)
 	if err != nil {
 		result.Err = NewError(err)
 		enc.Encode(result)
@@ -656,10 +1048,6 @@ func Service_MyTop3FavouriteProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 }
-
-
-
-
 
 
 
