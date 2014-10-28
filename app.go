@@ -75,10 +75,10 @@ func main() {
 	handleMakeMoreOrderToday(serv)
 	handleIsNoMoreOrderToday(serv)
 
-	println("Starting server on :8080")
+	println("Starting server on :8081")
 
 	s := &http.Server{
-		Addr:           ":8080",
+		Addr:           ":8081",
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
