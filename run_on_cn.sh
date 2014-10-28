@@ -8,7 +8,7 @@ export GOROOT=/opt/go
 export GOPATH=/home/lowtea/goprojs
 export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
-cd $GOPATH/src/github.com/sunfmin/batchbuy
+# cd $GOPATH/src/github.com/sunfmin/batchbuy
 # git pull origin master
 # sudo GOPATH=/home/lowtea/goprojs $GOROOT/bin/go install -a
 
