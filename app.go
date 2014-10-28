@@ -232,10 +232,9 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orders, ordersStr := []orderHolder{}, ""
-	var order orderHolder
+	orders, ordersStr, brittanyOrdersStr := []orderHolder{}, "", ""
 	for i, apiOrder := range apiOrders {
-		order = orderHolder{}
+		var order orderHolder
 		order.Index = i + 1
 		order.Count = apiOrder.Count
 		order.Product = apiOrder.Product.Name
@@ -250,8 +249,13 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 			userNames = append(userNames, nameStr)
 		}
 		order.Users = strings.Join(userNames, ", ")
-		ordersStr += strings.Join([]string{strconv.Itoa(order.Index), order.Product, strconv.Itoa(order.Count)}, ", ")
-		ordersStr += ";\n"
+		if strings.HasPrefix(order.Product, "Brittany") {
+			brittanyOrdersStr += strings.Join([]string{order.Product, strconv.Itoa(order.Count)}, ", ")
+			brittanyOrdersStr += ";\n"
+		} else {
+			ordersStr += strings.Join([]string{order.Product, strconv.Itoa(order.Count)}, ", ")
+			ordersStr += ";\n"
+		}
 
 		orders = append(orders, order)
 	}
@@ -259,17 +263,19 @@ func orderListPage(w http.ResponseWriter, r *http.Request) {
 	pageVar := struct {
 		Orders             []orderHolder
 		OrdersStr          string
+		BrittanyOrdersStr  string
 		Date               string
 		PreviousDay        string
 		NextDay            string
 		UnorderedUsers     string
 		IsNoMoreOrderToday bool
 	}{
-		Orders:      orders,
-		OrdersStr:   ordersStr,
-		Date:        date.Format(services.TimeFmt),
-		PreviousDay: date.AddDate(0, 0, -1).Format(services.TimeFmt),
-		NextDay:     date.AddDate(0, 0, 1).Format(services.TimeFmt),
+		Orders:            orders,
+		OrdersStr:         ordersStr,
+		BrittanyOrdersStr: brittanyOrdersStr,
+		Date:              date.Format(services.TimeFmt),
+		PreviousDay:       date.AddDate(0, 0, -1).Format(services.TimeFmt),
+		NextDay:           date.AddDate(0, 0, 1).Format(services.TimeFmt),
 	}
 
 	unorderedUsers, err := model.UnorderedUsers(date)

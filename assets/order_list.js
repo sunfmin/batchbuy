@@ -3,11 +3,11 @@ $(document).ready(function() {
         managable = ['venustingting@gmail.com', 'yvonne@theplant.jp'].indexOf(currentUser) != -1;
 
     if (!managable) {
-        $("#copy-button").remove();
+        $(".copy-button").remove();
         return;
     };
 
-    var clip = new ZeroClipboard($("#copy-button"), {
+    var clip = new ZeroClipboard($(".copy-button"), {
         moviePath: "/assets/ZeroClipboard.swf",
         hoverClass: "bootstrap-btn-hover",
         activeClass: "bootstrap-btn-active"
